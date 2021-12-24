@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "spraymadness",
+  "version": "${version}",
+  "name": "Spray Madness",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/spraymadness/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "daniel.spraymadness.client.SprayMadness"
+    ]
+  },
+  "mixins": [
+    "spraymadness.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.12.12",
+    "fabric": "*",
+    "minecraft": "1.18.1"
+  }
+}

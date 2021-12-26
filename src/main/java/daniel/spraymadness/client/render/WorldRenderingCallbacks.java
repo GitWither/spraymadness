@@ -19,20 +19,10 @@ public class WorldRenderingCallbacks
     private static final BufferBuilder BUFFER_BUILDER = new BufferBuilder(4);
     
     public static boolean renderSprays(WorldRenderContext ctx, HitResult ctx2) {
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.setShader(SprayMadness::getSprayShader);
-
-        RenderSystem.enableDepthTest();
-        //glDepthRange(0.3, 0.9);
-        //sprays' fragments will only be rendered if their depth value is equals the current depth value in the depth buffer
-        RenderSystem.depthFunc(GL_EQUAL);
-        RenderSystem.disableCull();
-        //glDepthRange(1, 0);
-
-        BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
-
         ctx.matrixStack().push();
         ctx.matrixStack().translate(-ctx.camera().getPos().x, -ctx.camera().getPos().y, -ctx.camera().getPos().z);
+
+        BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
 
         for (Spray spray : SprayMadness.totalSprays) {
 
@@ -49,11 +39,11 @@ public class WorldRenderingCallbacks
 
 
             if (axis.isHorizontal()) {
-                ctx.matrixStack().translate(0.0f, 0, 0.000012f * direction);
+                //ctx.matrixStack().translate(0.0f, 0, 0.000012f * direction);
                 ctx.matrixStack().multiply(Quaternion.fromEulerXyz(new Vec3f(0, rotation, 0)));
             }
             else {
-                ctx.matrixStack().translate(0, 0.001f * direction, 0);
+                //ctx.matrixStack().translate(0, 0.001f * direction, 0);
                 ctx.matrixStack().multiply(Quaternion.fromEulerXyz(new Vec3f(rotation, 0, 0)));
             }
 
@@ -75,7 +65,16 @@ public class WorldRenderingCallbacks
 
         BUFFER_BUILDER.end();
 
+        RenderSystem.setShaderColor(1f, 0.5f, 1f, 1f);
+        RenderSystem.setShader(SprayMadness::getSprayShader);
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableCull();
+        //sprays' fragments will only be rendered if their depth value is equals the current depth value in the depth buffer
+        RenderSystem.depthFunc(GL_EQUAL);
+
+
         BufferRenderer.draw(BUFFER_BUILDER);
+
 
         RenderSystem.disableDepthTest();
         RenderSystem.enableCull();

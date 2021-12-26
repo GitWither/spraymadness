@@ -16,8 +16,7 @@ out vec4 fragColor;
 
 void main() {
 
-
-    fragColor = texture2D(Sampler0, texCoord0);
+    fragColor = texture2D(Sampler0, texCoord0) * ColorModulator;
 
     //vec4 color = texture(Sampler0, texCoord0) * vertexColor;
     //fragColor = color * ColorModulator;

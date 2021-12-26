@@ -13,16 +13,12 @@ out vec4 vertexColor;
 out vec2 texCoord0;
 out vec2 texCoord2;
 out vec4 normal;
-out vec4 clipPosition;
-out vec4 viewSpacePosition;
-out mat4 inverseViewProjection;
+out vec3 clipPosition;
 
 void main() {
-    inverseViewProjection = inverse(ProjMat * ModelViewMat);
-    viewSpacePosition = gl_Position;
-    gl_Position = ProjMat * inverse(ModelViewMat) * vec4(Position, 1.0);
+    gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 
-    clipPosition = gl_Position;
+    clipPosition = Position;
     vertexColor = Color;
     texCoord0 = UV0;
     texCoord2 = UV2;

@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.InputUtil;
@@ -46,6 +47,7 @@ public class SprayMadness implements ClientModInitializer {
     public static final Logger LOGGER = LogManager.getLogger(NAME);
 
     public static Shader SPRAY_SHADER;
+    public static ShaderEffect SPRAY_SHADER_EFFECT;
 
     private static KeyBinding spawnSprayKeybinding;
 
@@ -91,6 +93,8 @@ public class SprayMadness implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             try {
                 SPRAY_SHADER = new Shader(MinecraftClient.getInstance().getResourceManager(), "spray", VertexFormats.POSITION_COLOR_TEXTURE);
+
+                SPRAY_SHADER_EFFECT = new ShaderEffect(client.getTextureManager(), client.getResourceManager(), client.getFramebuffer(), new Identifier("shaders/post/sprays.json"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

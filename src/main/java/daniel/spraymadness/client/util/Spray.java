@@ -23,6 +23,10 @@ public class Spray {
         this.face = face;
     }
 
+    public Direction getFace() {
+        return face;
+    }
+
     public Vec3f getPos() {
         return pos;
     }

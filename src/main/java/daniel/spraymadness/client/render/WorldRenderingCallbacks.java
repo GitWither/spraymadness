@@ -16,25 +16,20 @@ import static org.lwjgl.opengl.GL11C.*;
 
 public class WorldRenderingCallbacks
 {
-    private static BufferBuilder BUFFER_BUILDER = new BufferBuilder(6);
+    private static final BufferBuilder BUFFER_BUILDER = new BufferBuilder(4);
     
     public static boolean renderSprays(WorldRenderContext ctx, HitResult ctx2) {
-        //VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-        //VertexConsumer consumer = immediate.getBuffer(RenderLayer.getText(new Identifier("test")));
-
-        //MinecraftClient.getInstance().gameRenderer.getMapRenderer().draw(ctx.matrixStack(), ctx.consumers(), 0, state, false, LightmapTextureManager.MAX_LIGHT_COORDINATE);
-        //MinecraftClient.getInstance().getItemRenderer().renderItem(Items.BONE_BLOCK.getDefaultStack(), ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND, LightmapTextureManager.MAX_LIGHT_COORDINATE, 1, ctx.matrixStack(), ctx.consumers(), 1);
-        //MinecraftClient.getInstance().getBlockRenderManager().renderBlockAsEntity(
-        //       Blocks.DIAMOND_BLOCK.getDefaultState(),
-        //        ctx.matrixStack(), ctx.consumers(), 15728880, OverlayTexture.DEFAULT_UV);
-
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         RenderSystem.setShader(SprayMadness::getSprayShader);
 
         RenderSystem.enableDepthTest();
+        //glDepthRange(0.3, 0.9);
         //sprays' fragments will only be rendered if their depth value is equals the current depth value in the depth buffer
-        RenderSystem.depthFunc(GL_GEQUAL);
+        RenderSystem.depthFunc(GL_EQUAL);
         RenderSystem.disableCull();
+        //glDepthRange(1, 0);
+
+        BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
 
         ctx.matrixStack().push();
         ctx.matrixStack().translate(-ctx.camera().getPos().x, -ctx.camera().getPos().y, -ctx.camera().getPos().z);
@@ -54,12 +49,12 @@ public class WorldRenderingCallbacks
 
 
             if (axis.isHorizontal()) {
+                ctx.matrixStack().translate(0.0f, 0, 0.000012f * direction);
                 ctx.matrixStack().multiply(Quaternion.fromEulerXyz(new Vec3f(0, rotation, 0)));
-                //ctx.matrixStack().translate(0.0f, 0, 0.01f * direction);
             }
             else {
+                ctx.matrixStack().translate(0, 0.001f * direction, 0);
                 ctx.matrixStack().multiply(Quaternion.fromEulerXyz(new Vec3f(rotation, 0, 0)));
-                //ctx.matrixStack().translate(0.01f * direction, 0, 0);
             }
 
             //ctx.matrixStack().translate(0.0f, 0, 0.01f);
@@ -68,21 +63,23 @@ public class WorldRenderingCallbacks
             Matrix4f pos = ctx.matrixStack().peek().getPositionMatrix();
 
             //uploadCubeData(bb, pos);
-            BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
             BUFFER_BUILDER.vertex(pos, - 0.5f, -0.5f, 0).color(1, 1, 1, 1.0f).texture(0, 0).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 1, 1, 1).next();
             BUFFER_BUILDER.vertex(pos, -0.5f, 0.5f, 0).color(1, 1, 1, 1.0f).texture(0, 1).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 1, 1, 1).next();
             BUFFER_BUILDER.vertex(pos, 0.5f, 0.5f, 0).color(1, 1, 1, 1.0f).texture(1, 1).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 1, 1, 1).next();
             BUFFER_BUILDER.vertex(pos,  0.5f, -0.5f, 0).color(1, 1, 1, 1.0f).texture(1, 0).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 1, 1, 1).next();
-            BUFFER_BUILDER.end();
-            BufferRenderer.draw(BUFFER_BUILDER);
 
 
             ctx.matrixStack().pop();
             ctx.matrixStack().pop();
         }
 
+        BUFFER_BUILDER.end();
+
+        BufferRenderer.draw(BUFFER_BUILDER);
+
+        RenderSystem.disableDepthTest();
         RenderSystem.enableCull();
-        
+
         ctx.matrixStack().pop();
 
         return true;

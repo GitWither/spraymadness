@@ -47,7 +47,6 @@ public class SprayMadness implements ClientModInitializer {
     public static final Logger LOGGER = LogManager.getLogger(NAME);
 
     public static Shader SPRAY_SHADER;
-    public static ShaderEffect SPRAY_SHADER_EFFECT;
 
     private static KeyBinding spawnSprayKeybinding;
 
@@ -84,6 +83,7 @@ public class SprayMadness implements ClientModInitializer {
                             break;
                         case BLOCK:
                             Spray spray = new Spray(sprayTextures.get(0), new Vec3f((float)hit.getPos().x, (float)hit.getPos().y, (float)hit.getPos().z), ((BlockHitResult)hit).getSide());
+                            client.player.sendMessage(new LiteralText("Spray added "), false);
                             totalSprays.add(spray);
                     }
                 }
@@ -93,8 +93,6 @@ public class SprayMadness implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             try {
                 SPRAY_SHADER = new Shader(MinecraftClient.getInstance().getResourceManager(), "spray", VertexFormats.POSITION_COLOR_TEXTURE);
-
-                SPRAY_SHADER_EFFECT = new ShaderEffect(client.getTextureManager(), client.getResourceManager(), client.getFramebuffer(), new Identifier("shaders/post/sprays.json"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

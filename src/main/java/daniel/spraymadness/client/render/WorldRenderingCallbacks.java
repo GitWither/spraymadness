@@ -67,8 +67,10 @@ public class WorldRenderingCallbacks
 
         RenderSystem.setShaderColor(1f, 0.5f, 1f, 1f);
         RenderSystem.setShader(SprayMadness::getSprayShader);
-        RenderSystem.enableDepthTest();
+        RenderSystem.enablePolygonOffset();
+        RenderSystem.polygonOffset(-0.0000000000000000001f, 2);
         RenderSystem.disableCull();
+        RenderSystem.enableDepthTest();
         //sprays' fragments will only be rendered if their depth value is equals the current depth value in the depth buffer
         RenderSystem.depthFunc(GL_EQUAL);
 
@@ -76,6 +78,8 @@ public class WorldRenderingCallbacks
         BufferRenderer.draw(BUFFER_BUILDER);
 
 
+        RenderSystem.polygonOffset(0, 0);
+        RenderSystem.disablePolygonOffset();
         RenderSystem.disableDepthTest();
         RenderSystem.enableCull();
 

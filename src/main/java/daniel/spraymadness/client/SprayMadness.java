@@ -1,26 +1,21 @@
 package daniel.spraymadness.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import daniel.spraymadness.client.render.WorldRenderingCallbacks;
+import daniel.spraymadness.client.screen.QuickSprayScreen;
 import daniel.spraymadness.client.texture.SprayTexture;
 import daniel.spraymadness.client.util.Spray;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.nbt.*;
 import net.minecraft.text.LiteralText;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
@@ -31,9 +26,7 @@ import org.lwjgl.glfw.GLFW;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 @Environment(net.fabricmc.api.EnvType.CLIENT)
 public class SprayMadness implements ClientModInitializer {
@@ -48,9 +41,8 @@ public class SprayMadness implements ClientModInitializer {
 
     public static Shader SPRAY_SHADER;
 
-    private static KeyBinding spawnSprayKeybinding;
-
-
+    public static KeyBinding SPAWN_SPRAY_KEYBIND;
+    public static KeyBinding SPRAY_WHEEL_KEYBIND;
 
     public static Shader getSprayShader() {
         return SPRAY_SHADER;
@@ -61,11 +53,19 @@ public class SprayMadness implements ClientModInitializer {
         LOGGER.info("Initializing!");
 
 
-        spawnSprayKeybinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        //TODO: Change category to proper name
+        SPAWN_SPRAY_KEYBIND = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.spray_madness.spray",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
                 "test"
+        ));
+
+        SPRAY_WHEEL_KEYBIND = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+           "key.spray_madness.spray_wheel",
+           InputUtil.Type.KEYSYM,
+           GLFW.GLFW_KEY_Y,
+           "test"
         ));
 
         WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register(WorldRenderingCallbacks::renderSprays);
@@ -75,7 +75,7 @@ public class SprayMadness implements ClientModInitializer {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (spawnSprayKeybinding.wasPressed()) {
+            if (SPAWN_SPRAY_KEYBIND.wasPressed()) {
                 HitResult hit = client.crosshairTarget;
                 if (hit != null) {
                     switch (hit.getType()) {
@@ -87,6 +87,10 @@ public class SprayMadness implements ClientModInitializer {
                             totalSprays.add(spray);
                     }
                 }
+            }
+
+            if (SPRAY_WHEEL_KEYBIND.isPressed()) {
+                client.setScreen(new QuickSprayScreen());
             }
         });
 

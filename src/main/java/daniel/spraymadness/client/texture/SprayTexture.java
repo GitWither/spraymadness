@@ -8,6 +8,8 @@ import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import java.io.*;
 
@@ -71,5 +73,9 @@ public class SprayTexture extends AbstractTexture {
 
     public Identifier getIdentifier() {
         return this.identifier;
+    }
+
+    public String getTitle() {
+        return StringUtils.capitalize(this.identifier.getPath().replace(".png", ""));
     }
 }

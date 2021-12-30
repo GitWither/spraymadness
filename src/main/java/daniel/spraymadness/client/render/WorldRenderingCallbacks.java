@@ -39,11 +39,11 @@ public class WorldRenderingCallbacks
 
 
             if (axis.isHorizontal()) {
-                //ctx.matrixStack().translate(0.0f, 0, 0.000012f * direction);
+                ctx.matrixStack().translate(0.0f, 0, 0.001f * direction);
                 ctx.matrixStack().multiply(Quaternion.fromEulerXyz(new Vec3f(0, rotation, 0)));
             }
             else {
-                //ctx.matrixStack().translate(0, 0.001f * direction, 0);
+                ctx.matrixStack().translate(0, 0.001f * direction, 0);
                 ctx.matrixStack().multiply(Quaternion.fromEulerXyz(new Vec3f(rotation, 0, 0)));
             }
 
@@ -72,7 +72,7 @@ public class WorldRenderingCallbacks
         RenderSystem.disableCull();
         RenderSystem.enableDepthTest();
         //sprays' fragments will only be rendered if their depth value is equals the current depth value in the depth buffer
-        RenderSystem.depthFunc(GL_EQUAL);
+        //RenderSystem.depthFunc(GL_LESS);
 
 
         BufferRenderer.draw(BUFFER_BUILDER);

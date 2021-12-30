@@ -1,28 +1,29 @@
 package daniel.spraymadness.client.screen;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import daniel.spraymadness.client.SprayMadness;
 import daniel.spraymadness.client.texture.SprayTexture;
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.font.TextHandler;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.*;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3i;
-
-import java.util.HashMap;
-import java.util.Objects;
+import net.minecraft.util.math.Matrix4f;
 
 public class QuickSprayScreen extends Screen {
     protected static final Identifier TEXTURE = new Identifier(SprayMadness.MOD_ID, "textures/gui/spray_wheel.png");
-    //TODO: Change this
+
     private static final Text TITLE = new TranslatableText("gui.spray_madness.spray_wheel.title");
+
+    private static final int SPRAY_SPACING = 40;
+
+    private static final int SPRAY_TEXTURE_WIDTH = 25;
+    private static final int SPRAY_TEXTURE_HEIGHT = 25;
+
+    private static final int SPRAY_QUAD_WIDTH = (SPRAY_TEXTURE_WIDTH * 3 + SPRAY_SPACING * 2);
 
     private int x;
     private int y;
@@ -30,19 +31,8 @@ public class QuickSprayScreen extends Screen {
     private int titleX;
     private int titleY;
 
-    private final int backgroundWidth = 128;
-    private final int backgroundHeight = 128;
-
-
-    private static final HashMap<Integer, Integer> HEIGHT_MAPPING = new HashMap<>() {{
-
-        put(0, 60);
-        put(1, 85);
-        put(2, 85);
-        put(3, 60);
-        put(4, 35);
-        put(5, 35);
-    }};
+    private static final int BACKGROUND_TEXTURE_WIDTH = 170;
+    private static final int BACKGROUND_TEXTURE_HEIGHT = 170;
 
     public QuickSprayScreen() {
         super(TITLE);
@@ -50,10 +40,10 @@ public class QuickSprayScreen extends Screen {
 
     @Override
     protected void init() {
-        this.x = (this.width - this.backgroundWidth) / 2;
-        this.y = (this.height - this.backgroundHeight) / 2;
+        this.x = (this.width - BACKGROUND_TEXTURE_WIDTH) / 2;
+        this.y = (this.height - BACKGROUND_TEXTURE_HEIGHT) / 2;
 
-        this.titleX = (this.backgroundWidth - this.textRenderer.getWidth(TITLE)) / 2 + this.x;
+        this.titleX = (BACKGROUND_TEXTURE_WIDTH - this.textRenderer.getWidth(TITLE)) / 2 + this.x;
         this.titleY = this.y - 10;
 
         super.init();
@@ -78,43 +68,64 @@ public class QuickSprayScreen extends Screen {
         }
     }
 
+
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
 
         this.textRenderer.drawWithShadow(matrices, TITLE, this.titleX, this.titleY, (255 << 16) + (255 << 8) + 255);
 
-        //RenderSystem.blendFunc(GlStateManager.SrcFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.DstFactor.SRC_ALPHA);
         RenderSystem.enableBlend();
-        //RenderSystem.setShader(GameRenderer::getPositionShader);
         RenderSystem.setShaderTexture(0, TEXTURE);
-        this.drawTexture(matrices, this.x, this.y, 64, 64, 128, 128);
+        this.drawTexture(matrices, this.x, this.y, 0, 0, BACKGROUND_TEXTURE_WIDTH, BACKGROUND_TEXTURE_HEIGHT);
         RenderSystem.disableBlend();
 
-        SprayTexture texture1 = SprayMadness.sprayTextures.get(0);
-        RenderSystem.setShaderTexture(0, texture1.getIdentifier());
-        matrices.push();
-        matrices.translate((this.width - texture1.getWidth()) / 2f + 190, 115f, 0);
-        matrices.scale(0.1f, 0.1f, 1f);
-        this.drawTexture(matrices, 0, 0, 0, 0,  texture1.getWidth() / 2, texture1.getHeight() / 2);
-        matrices.pop();
 
         matrices.push();
-        matrices.translate((this.width - texture1.getWidth()) / 2f + 225, 80f, 0);
-        matrices.scale(0.1f, 0.1f, 1f);
-        this.drawTexture(matrices, 0, 0, 0, 0,  texture1.getWidth() / 2, texture1.getHeight() / 2);
-        matrices.pop();
+        matrices.translate((this.width - SPRAY_QUAD_WIDTH + SPRAY_TEXTURE_WIDTH * 2 - 2) / 2f, this.y + 30, 0);
+        {
+            int x = 0;
+            int y = 0;
 
-        matrices.push();
-        matrices.translate((this.width - texture1.getWidth()) / 2f + 265, 80f, 0);
-        matrices.scale(0.1f, 0.1f, 1f);
-        this.drawTexture(matrices, 0, 0, 0, 0,  texture1.getWidth() / 2, texture1.getHeight() / 2);
-        matrices.pop();
+            for (int i = 0; i < SprayMadness.sprayTextures.size(); i++) {
+                if (i > 7) break;
 
-        matrices.push();
-        matrices.translate((this.width - texture1.getWidth()) / 2f + 300, 115f, 0);
-        matrices.scale(0.1f, 0.1f, 1f);
-        this.drawTexture(matrices, 0, 0, 0, 0,  texture1.getWidth() / 2, texture1.getHeight() / 2);
+                SprayTexture texture = SprayMadness.sprayTextures.get(i);
+
+                matrices.push();
+                matrices.translate(x * SPRAY_SPACING, y * SPRAY_SPACING, 0);
+                RenderSystem.setShaderTexture(0, texture.getIdentifier());
+                //DrawableHelper.drawTexture(matrices, 0, 0, 0, 0,  texture.getWidth(), texture.getHeight(), texture.getWidth(), texture.getHeight());
+                //MatrixStack matrices, int x0, int x1, int y0, int y1, int z, int regionWidth, int regionHeight, float u, float v, int textureWidth, int textureHeight
+                QuickSprayScreen.drawSprayTexture(matrices, texture, x, y);
+
+
+                matrices.pop();
+
+                String sprayName = texture.getTitle();
+
+                OrderedText text = OrderedText.styledForwardsVisitedString(sprayName, Style.EMPTY.withColor(TextColor.fromFormatting(Formatting.AQUA)));
+                matrices.push();
+                matrices.translate((int)(x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f) - (this.textRenderer.getWidth(text) / 2f), y * SPRAY_SPACING + SPRAY_TEXTURE_HEIGHT + 1, 1);
+                matrices.scale(0.5f, 0.5f, 1);
+                this.textRenderer.drawWithShadow(matrices, text, 0, 0, (255 << 16) + (255 << 8) + 255);
+                matrices.pop();
+                //DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, text, (int) (x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f), y * SPRAY_SPACING + SPRAY_TEXTURE_HEIGHT + 1,(255 << 16) + (255 << 8) + 255);
+
+                if (i >= 2 && i < 4) {
+                    x++;
+                }
+                if (i == 6) {
+                    x--;
+                }
+                if (i <= 1) {
+                    y++;
+                }
+                else if (i >= 4 && i <= 5) {
+                    y--;
+                }
+            }
+        }
         matrices.pop();
 
 
@@ -134,5 +145,28 @@ public class QuickSprayScreen extends Screen {
             }
         }
          */
+    }
+
+    private static void drawSprayTexture(MatrixStack matrices, SprayTexture texture, int x, int y) {
+        Matrix4f posMat = matrices.peek().getPositionMatrix();
+
+        int x1 = x + SPRAY_TEXTURE_WIDTH;
+        int y1 = y + SPRAY_TEXTURE_HEIGHT;
+
+        RenderSystem.setShaderTexture(0, texture.getIdentifier());
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+
+        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+
+        bufferBuilder.vertex(posMat, x, y1, 0).texture(0, 1).next();
+        bufferBuilder.vertex(posMat, x1, y1, 0).texture(1, 1).next();
+        bufferBuilder.vertex(posMat, x1, y, 0).texture(1, 0).next();
+        bufferBuilder.vertex(posMat, x, y, 0).texture(0, 0).next();
+
+        bufferBuilder.end();
+
+        BufferRenderer.draw(bufferBuilder);
     }
 }

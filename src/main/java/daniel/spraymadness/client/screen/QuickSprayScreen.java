@@ -34,6 +34,8 @@ public class QuickSprayScreen extends Screen {
     private static final int BACKGROUND_TEXTURE_WIDTH = 170;
     private static final int BACKGROUND_TEXTURE_HEIGHT = 170;
 
+    private static final int WHITE = (255 << 16) + (255 << 8) + 255;
+
     public QuickSprayScreen() {
         super(TITLE);
     }
@@ -44,7 +46,7 @@ public class QuickSprayScreen extends Screen {
         this.y = (this.height - BACKGROUND_TEXTURE_HEIGHT) / 2;
 
         this.titleX = (BACKGROUND_TEXTURE_WIDTH - this.textRenderer.getWidth(TITLE)) / 2 + this.x;
-        this.titleY = this.y - 10;
+        this.titleY = this.y + 6;
 
         super.init();
     }
@@ -73,7 +75,7 @@ public class QuickSprayScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
 
-        this.textRenderer.drawWithShadow(matrices, TITLE, this.titleX, this.titleY, (255 << 16) + (255 << 8) + 255);
+        this.textRenderer.drawWithShadow(matrices, TITLE, this.titleX, this.titleY, WHITE);
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, TEXTURE);
@@ -82,7 +84,7 @@ public class QuickSprayScreen extends Screen {
 
 
         matrices.push();
-        matrices.translate((this.width - SPRAY_QUAD_WIDTH + SPRAY_TEXTURE_WIDTH * 2 - 2) / 2f, this.y + 30, 0);
+        matrices.translate((this.width - SPRAY_QUAD_WIDTH + SPRAY_TEXTURE_WIDTH * 2 - 2) / 2f, this.y + 32, 0);
         {
             int x = 0;
             int y = 0;
@@ -106,9 +108,9 @@ public class QuickSprayScreen extends Screen {
 
                 OrderedText text = OrderedText.styledForwardsVisitedString(sprayName, Style.EMPTY.withColor(TextColor.fromFormatting(Formatting.AQUA)));
                 matrices.push();
-                matrices.translate((int)(x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f) - (this.textRenderer.getWidth(text) / 2f), y * SPRAY_SPACING + SPRAY_TEXTURE_HEIGHT + 1, 1);
-                matrices.scale(0.5f, 0.5f, 1);
-                this.textRenderer.drawWithShadow(matrices, text, 0, 0, (255 << 16) + (255 << 8) + 255);
+                //matrices.scale(0.5f, 0.5f, 1);
+                //this.textRenderer.drawWithShadow(matrices, text, 0, 0, WHITE);
+                DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, text, (int) (x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f), y * SPRAY_TEXTURE_WIDTH + SPRAY_TEXTURE_HEIGHT, WHITE);
                 matrices.pop();
                 //DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, text, (int) (x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f), y * SPRAY_SPACING + SPRAY_TEXTURE_HEIGHT + 1,(255 << 16) + (255 << 8) + 255);
 

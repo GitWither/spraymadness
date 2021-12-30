@@ -1,7 +1,7 @@
 package daniel.spraymadness.client;
 
 import daniel.spraymadness.client.render.WorldRenderingCallbacks;
-import daniel.spraymadness.client.screen.QuickSprayScreen;
+import daniel.spraymadness.client.screen.SprayWheelScreen;
 import daniel.spraymadness.client.texture.SprayTexture;
 import daniel.spraymadness.client.util.Spray;
 import net.fabricmc.api.ClientModInitializer;
@@ -90,7 +90,7 @@ public class SprayMadness implements ClientModInitializer {
             }
 
             if (SPRAY_WHEEL_KEYBIND.isPressed()) {
-                client.setScreen(new QuickSprayScreen());
+                client.setScreen(new SprayWheelScreen());
             }
         });
 

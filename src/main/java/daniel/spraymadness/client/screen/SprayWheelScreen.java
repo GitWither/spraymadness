@@ -3,7 +3,6 @@ package daniel.spraymadness.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import daniel.spraymadness.client.SprayMadness;
 import daniel.spraymadness.client.texture.SprayTexture;
-import net.minecraft.client.font.TextHandler;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.*;
@@ -13,7 +12,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 
-public class QuickSprayScreen extends Screen {
+public class SprayWheelScreen extends Screen {
     protected static final Identifier TEXTURE = new Identifier(SprayMadness.MOD_ID, "textures/gui/spray_wheel.png");
 
     private static final Text TITLE = new TranslatableText("gui.spray_madness.spray_wheel.title");
@@ -36,7 +35,7 @@ public class QuickSprayScreen extends Screen {
 
     private static final int WHITE = (255 << 16) + (255 << 8) + 255;
 
-    public QuickSprayScreen() {
+    public SprayWheelScreen() {
         super(TITLE);
     }
 
@@ -99,7 +98,7 @@ public class QuickSprayScreen extends Screen {
                 RenderSystem.setShaderTexture(0, texture.getIdentifier());
                 //DrawableHelper.drawTexture(matrices, 0, 0, 0, 0,  texture.getWidth(), texture.getHeight(), texture.getWidth(), texture.getHeight());
                 //MatrixStack matrices, int x0, int x1, int y0, int y1, int z, int regionWidth, int regionHeight, float u, float v, int textureWidth, int textureHeight
-                QuickSprayScreen.drawSprayTexture(matrices, texture, x, y);
+                SprayWheelScreen.drawSprayTexture(matrices, texture, x, y);
 
 
                 matrices.pop();

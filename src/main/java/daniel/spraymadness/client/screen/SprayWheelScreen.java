@@ -24,6 +24,9 @@ public class SprayWheelScreen extends Screen {
 
     private static final int SPRAY_QUAD_WIDTH = (SPRAY_TEXTURE_WIDTH * 3 + SPRAY_SPACING * 2);
 
+    private double mouseDeltaX = 0;
+    private double mouseDeltaY = 0;
+
     private int x;
     private int y;
 
@@ -99,17 +102,25 @@ public class SprayWheelScreen extends Screen {
                 //DrawableHelper.drawTexture(matrices, 0, 0, 0, 0,  texture.getWidth(), texture.getHeight(), texture.getWidth(), texture.getHeight());
                 //MatrixStack matrices, int x0, int x1, int y0, int y1, int z, int regionWidth, int regionHeight, float u, float v, int textureWidth, int textureHeight
                 SprayWheelScreen.drawSprayTexture(matrices, texture, x, y);
+                matrices.pop();
 
-
+                if (deltaToIndex(mouseDeltaX, mouseDeltaY) == i) {
+                    DrawableHelper.fill(matrices, 0, 0, SPRAY_TEXTURE_WIDTH, SPRAY_TEXTURE_HEIGHT, 0x11111111);
+                }
+                matrices.push();
+                matrices.translate(34.5f, -5, 1);
+                DrawableHelper.fill(matrices, 0, 0, 38, 38, 0x11111111);
                 matrices.pop();
 
                 String sprayName = texture.getTitle();
 
                 OrderedText text = OrderedText.styledForwardsVisitedString(sprayName, Style.EMPTY.withColor(TextColor.fromFormatting(Formatting.AQUA)));
                 matrices.push();
-                //matrices.scale(0.5f, 0.5f, 1);
-                //this.textRenderer.drawWithShadow(matrices, text, 0, 0, WHITE);
-                DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, text, (int) (x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f), y * SPRAY_TEXTURE_WIDTH + SPRAY_TEXTURE_HEIGHT, WHITE);
+                matrices.translate((int) (x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f) + x, y * SPRAY_SPACING + SPRAY_TEXTURE_HEIGHT + y + 2, 0);
+                matrices.scale(0.5f, 0.5f, 1);
+                
+                //here both x and y are 0 since they are adjusted within the matrix stack - if I translate after scaling it's not going to work
+                DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, text, 0, 0, WHITE);
                 matrices.pop();
                 //DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, text, (int) (x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f), y * SPRAY_SPACING + SPRAY_TEXTURE_HEIGHT + 1,(255 << 16) + (255 << 8) + 255);
 
@@ -129,24 +140,57 @@ public class SprayWheelScreen extends Screen {
         }
         matrices.pop();
 
-
-        /*
-        for (int i = 0; i < 7; i++) {
-            if (i < SprayMadness.sprayTextures.size()) {
-                matrices.push();
-                int x = ((Objects.equals(HEIGHT_MAPPING.get(i), HEIGHT_MAPPING.getOrDefault( i - 1, 0))) ? i : i - 1) * 300;
-                int y = HEIGHT_MAPPING.get(i) + 250;
-
-                matrices.scale(0.1f, 0.1f, 0.1f);
-
-                RenderSystem.setShaderTexture(0, SprayMadness.sprayTextures.get(i).getIdentifier());
-                this.drawTexture(matrices, x, y, 0, 0,  SprayMadness.sprayTextures.get(i).getWidth() / 2, SprayMadness.sprayTextures.get(i).getHeight() / 2);
-
-                matrices.pop();
-            }
-        }
-         */
+        System.out.println(deltaToIndex(mouseDeltaX, mouseDeltaY));
     }
+
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        //just so IntelliJ can stfu
+        if (this.client == null) return;
+
+
+        mouseDeltaX = mouseX - this.client.mouse.getX() / 2f;
+        mouseDeltaY = mouseY - this.client.mouse.getY() / 2f;
+    }
+
+    private static int deltaToIndex(double mouseDeltaX, double mouseDeltaY) {
+        if (mouseDeltaX == 0 && mouseDeltaY == 0) return -1;
+
+        if (mouseDeltaX <= -0.5 && mouseDeltaY <= -0.5) {
+            return 0;
+        }
+
+        if (mouseDeltaX <= -0.5 && mouseDeltaY == 0.0) {
+            return 1;
+        }
+
+        if (mouseDeltaX <= -0.5 && mouseDeltaY >= 0.5) {
+            return 2;
+        }
+
+        if (mouseDeltaX == 0.0 && mouseDeltaY >= 0.5) {
+            return 3;
+        }
+
+        if (mouseDeltaX >= 0.5 && mouseDeltaY >= 0.5) {
+            return 4;
+        }
+
+        if (mouseDeltaX >= 0.5 && mouseDeltaY == 0.0) {
+            return 5;
+        }
+
+        if (mouseDeltaX >= 0.5 && mouseDeltaY <= -0.5) {
+            return 6;
+        }
+
+        if (mouseDeltaX == 0.0 && mouseDeltaY <= 0.5) {
+            return 7;
+        }
+
+        return -1;
+    }
+
 
     private static void drawSprayTexture(MatrixStack matrices, SprayTexture texture, int x, int y) {
         Matrix4f posMat = matrices.peek().getPositionMatrix();

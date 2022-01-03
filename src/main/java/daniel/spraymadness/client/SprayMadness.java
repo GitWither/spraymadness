@@ -89,7 +89,7 @@ public class SprayMadness implements ClientModInitializer {
                 }
             }
 
-            if (SPRAY_WHEEL_KEYBIND.isPressed()) {
+            if (SPRAY_WHEEL_KEYBIND.isPressed() && !(client.currentScreen instanceof SprayWheelScreen)) {
                 client.setScreen(new SprayWheelScreen());
             }
         });

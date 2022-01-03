@@ -17,21 +17,20 @@ public class SprayWheelScreen extends Screen {
 
     private static final Text TITLE = new TranslatableText("gui.spray_madness.spray_wheel.title");
 
-    private static final int SPRAY_SPACING = 40;
+    private static final int SPRAY_SPACING = 38;
 
     private static final int SPRAY_TEXTURE_WIDTH = 25;
     private static final int SPRAY_TEXTURE_HEIGHT = 25;
 
     private static final int SPRAY_QUAD_WIDTH = (SPRAY_TEXTURE_WIDTH * 3 + SPRAY_SPACING * 2);
 
-    private double mouseDeltaX = 0;
-    private double mouseDeltaY = 0;
-
     private int x;
     private int y;
 
     private int titleX;
     private int titleY;
+
+    private int selectedIndex;
 
     private static final int BACKGROUND_TEXTURE_WIDTH = 170;
     private static final int BACKGROUND_TEXTURE_HEIGHT = 170;
@@ -66,12 +65,22 @@ public class SprayWheelScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
-
-        if (!SprayMadness.SPRAY_WHEEL_KEYBIND.isPressed()) {
-            this.onClose();
-        }
     }
 
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        if (super.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
+
+        if (SprayMadness.SPRAY_WHEEL_KEYBIND.matchesKey(keyCode, scanCode)) {
+            this.onClose();
+
+            return true;
+        }
+
+        return false;
+    }
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
@@ -99,18 +108,19 @@ public class SprayWheelScreen extends Screen {
                 matrices.push();
                 matrices.translate(x * SPRAY_SPACING, y * SPRAY_SPACING, 0);
                 RenderSystem.setShaderTexture(0, texture.getIdentifier());
-                //DrawableHelper.drawTexture(matrices, 0, 0, 0, 0,  texture.getWidth(), texture.getHeight(), texture.getWidth(), texture.getHeight());
-                //MatrixStack matrices, int x0, int x1, int y0, int y1, int z, int regionWidth, int regionHeight, float u, float v, int textureWidth, int textureHeight
                 SprayWheelScreen.drawSprayTexture(matrices, texture, x, y);
                 matrices.pop();
 
-                if (deltaToIndex(mouseDeltaX, mouseDeltaY) == i) {
-                    DrawableHelper.fill(matrices, 0, 0, SPRAY_TEXTURE_WIDTH, SPRAY_TEXTURE_HEIGHT, 0x11111111);
+                if (selectedIndex == i) {
+                    matrices.push();
+                    //1.5 is puuuuuuuurely a magic number, cry about it
+                    matrices.translate(x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f + x, y * SPRAY_SPACING + SPRAY_TEXTURE_HEIGHT / 2f + y + 1.5, 0);
+                    matrices.scale(19, 19, 1);
+
+                    DrawableHelper.fill(matrices, -1, -1, 1, 1,(122 << 24) + (51 << 16) + (255 << 8) + 106);
+
+                    matrices.pop();
                 }
-                matrices.push();
-                matrices.translate(34.5f, -5, 1);
-                DrawableHelper.fill(matrices, 0, 0, 38, 38, 0x11111111);
-                matrices.pop();
 
                 String sprayName = texture.getTitle();
 
@@ -118,11 +128,10 @@ public class SprayWheelScreen extends Screen {
                 matrices.push();
                 matrices.translate((int) (x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f) + x, y * SPRAY_SPACING + SPRAY_TEXTURE_HEIGHT + y + 2, 0);
                 matrices.scale(0.5f, 0.5f, 1);
-                
+
                 //here both x and y are 0 since they are adjusted within the matrix stack - if I translate after scaling it's not going to work
                 DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, text, 0, 0, WHITE);
                 matrices.pop();
-                //DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, text, (int) (x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f), y * SPRAY_SPACING + SPRAY_TEXTURE_HEIGHT + 1,(255 << 16) + (255 << 8) + 255);
 
                 if (i >= 2 && i < 4) {
                     x++;
@@ -139,56 +148,45 @@ public class SprayWheelScreen extends Screen {
             }
         }
         matrices.pop();
-
-        System.out.println(deltaToIndex(mouseDeltaX, mouseDeltaY));
     }
 
     @Override
-    public void mouseMoved(double mouseX, double mouseY) {
+    public void mouseMoved(double posX, double posY) {
         //just so IntelliJ can stfu
         if (this.client == null) return;
 
+        double mouseX = posX;
+        double mouseY = posY;
 
-        mouseDeltaX = mouseX - this.client.mouse.getX() / 2f;
-        mouseDeltaY = mouseY - this.client.mouse.getY() / 2f;
-    }
-
-    private static int deltaToIndex(double mouseDeltaX, double mouseDeltaY) {
-        if (mouseDeltaX == 0 && mouseDeltaY == 0) return -1;
-
-        if (mouseDeltaX <= -0.5 && mouseDeltaY <= -0.5) {
-            return 0;
+        if (mouseX >= 0 && mouseY >= 0 && mouseX <= SPRAY_TEXTURE_WIDTH && mouseY <= SPRAY_TEXTURE_HEIGHT) {
+            selectedIndex = 0;
+        }
+        if (mouseX >= SPRAY_TEXTURE_WIDTH && mouseY >= 0 && mouseX <= 2 * SPRAY_TEXTURE_WIDTH && mouseY <= SPRAY_TEXTURE_HEIGHT) {
+            selectedIndex = 7;
+        }
+        if (mouseX >= 2 * SPRAY_TEXTURE_WIDTH && mouseY >= 0 && mouseX <= 3 * SPRAY_TEXTURE_WIDTH && mouseY <= SPRAY_TEXTURE_HEIGHT) {
+            selectedIndex = 6;
         }
 
-        if (mouseDeltaX <= -0.5 && mouseDeltaY == 0.0) {
-            return 1;
+        if (mouseX >= 0 && mouseY >= SPRAY_TEXTURE_HEIGHT && mouseX <= SPRAY_TEXTURE_WIDTH && mouseY <= 2 * SPRAY_TEXTURE_HEIGHT) {
+            selectedIndex = 1;
         }
 
-        if (mouseDeltaX <= -0.5 && mouseDeltaY >= 0.5) {
-            return 2;
+        if (mouseX >= 0 && mouseY >= 2 * SPRAY_TEXTURE_HEIGHT && mouseX <= SPRAY_TEXTURE_WIDTH && mouseY <= 3 * SPRAY_TEXTURE_HEIGHT) {
+            selectedIndex = 2;
         }
 
-        if (mouseDeltaX == 0.0 && mouseDeltaY >= 0.5) {
-            return 3;
+        if (mouseX >= SPRAY_TEXTURE_WIDTH && mouseY >= 2 * SPRAY_TEXTURE_HEIGHT && mouseX <= 2 * SPRAY_TEXTURE_WIDTH && mouseY <= 3 * SPRAY_TEXTURE_HEIGHT) {
+            selectedIndex = 3;
         }
 
-        if (mouseDeltaX >= 0.5 && mouseDeltaY >= 0.5) {
-            return 4;
+        if (mouseX >= 2 * SPRAY_TEXTURE_WIDTH && mouseY >= 2 * SPRAY_TEXTURE_HEIGHT && mouseX <= 3 * SPRAY_TEXTURE_WIDTH && mouseY <= 3 * SPRAY_TEXTURE_HEIGHT) {
+            selectedIndex = 4;
         }
 
-        if (mouseDeltaX >= 0.5 && mouseDeltaY == 0.0) {
-            return 5;
+        if (mouseX >= 2 * SPRAY_TEXTURE_WIDTH && mouseY >= SPRAY_TEXTURE_HEIGHT && mouseX <= 3 * SPRAY_TEXTURE_WIDTH && mouseY <= 2 * SPRAY_TEXTURE_HEIGHT) {
+            selectedIndex = 5;
         }
-
-        if (mouseDeltaX >= 0.5 && mouseDeltaY <= -0.5) {
-            return 6;
-        }
-
-        if (mouseDeltaX == 0.0 && mouseDeltaY <= 0.5) {
-            return 7;
-        }
-
-        return -1;
     }
 
 

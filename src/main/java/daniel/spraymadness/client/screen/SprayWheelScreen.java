@@ -30,12 +30,20 @@ public class SprayWheelScreen extends Screen {
     private int titleX;
     private int titleY;
 
-    private int selectedIndex;
+    private double selectionOriginX;
+    private double selectionOriginY;
+
+    private int selectedIndex = -1;
 
     private static final int BACKGROUND_TEXTURE_WIDTH = 170;
     private static final int BACKGROUND_TEXTURE_HEIGHT = 170;
 
+    private static final int BACKGROUND_TEXTURE_OFFSET = 21;
+
     private static final int WHITE = (255 << 16) + (255 << 8) + 255;
+
+    //ARGB format (this sucks)
+    private static final int SELECTION_COLOR = (122 << 24) + (51 << 16) + (255 << 8) + 106;
 
     public SprayWheelScreen() {
         super(TITLE);
@@ -48,6 +56,9 @@ public class SprayWheelScreen extends Screen {
 
         this.titleX = (BACKGROUND_TEXTURE_WIDTH - this.textRenderer.getWidth(TITLE)) / 2 + this.x;
         this.titleY = this.y + 6;
+
+        this.selectionOriginX = this.x + BACKGROUND_TEXTURE_OFFSET;
+        this.selectionOriginY = this.y + BACKGROUND_TEXTURE_OFFSET;
 
         super.init();
     }
@@ -117,7 +128,7 @@ public class SprayWheelScreen extends Screen {
                     matrices.translate(x * SPRAY_SPACING + SPRAY_TEXTURE_WIDTH / 2f + x, y * SPRAY_SPACING + SPRAY_TEXTURE_HEIGHT / 2f + y + 1.5, 0);
                     matrices.scale(19, 19, 1);
 
-                    DrawableHelper.fill(matrices, -1, -1, 1, 1,(122 << 24) + (51 << 16) + (255 << 8) + 106);
+                    DrawableHelper.fill(matrices, -1, -1, 1, 1,SELECTION_COLOR);
 
                     matrices.pop();
                 }
@@ -155,38 +166,31 @@ public class SprayWheelScreen extends Screen {
         //just so IntelliJ can stfu
         if (this.client == null) return;
 
-        double mouseX = posX;
-        double mouseY = posY;
-
-        if (mouseX >= 0 && mouseY >= 0 && mouseX <= SPRAY_TEXTURE_WIDTH && mouseY <= SPRAY_TEXTURE_HEIGHT) {
+        if (posX >= selectionOriginX && posY >= selectionOriginY && posX <= SPRAY_SPACING + selectionOriginX && posY <= SPRAY_SPACING + selectionOriginY) {
             selectedIndex = 0;
         }
-        if (mouseX >= SPRAY_TEXTURE_WIDTH && mouseY >= 0 && mouseX <= 2 * SPRAY_TEXTURE_WIDTH && mouseY <= SPRAY_TEXTURE_HEIGHT) {
-            selectedIndex = 7;
-        }
-        if (mouseX >= 2 * SPRAY_TEXTURE_WIDTH && mouseY >= 0 && mouseX <= 3 * SPRAY_TEXTURE_WIDTH && mouseY <= SPRAY_TEXTURE_HEIGHT) {
-            selectedIndex = 6;
-        }
-
-        if (mouseX >= 0 && mouseY >= SPRAY_TEXTURE_HEIGHT && mouseX <= SPRAY_TEXTURE_WIDTH && mouseY <= 2 * SPRAY_TEXTURE_HEIGHT) {
+        if (posX >= selectionOriginX && posY >= SPRAY_SPACING + selectionOriginY && posX <= SPRAY_SPACING + selectionOriginX && posY <= 2 * SPRAY_SPACING + selectionOriginY) {
             selectedIndex = 1;
         }
-
-        if (mouseX >= 0 && mouseY >= 2 * SPRAY_TEXTURE_HEIGHT && mouseX <= SPRAY_TEXTURE_WIDTH && mouseY <= 3 * SPRAY_TEXTURE_HEIGHT) {
+        if (posX >= selectionOriginX && posY >= 2 * SPRAY_SPACING + selectionOriginY && posX <= SPRAY_SPACING + selectionOriginX && posY <= 3 * SPRAY_SPACING + selectionOriginY) {
             selectedIndex = 2;
         }
-
-        if (mouseX >= SPRAY_TEXTURE_WIDTH && mouseY >= 2 * SPRAY_TEXTURE_HEIGHT && mouseX <= 2 * SPRAY_TEXTURE_WIDTH && mouseY <= 3 * SPRAY_TEXTURE_HEIGHT) {
+        if (posX >= SPRAY_SPACING + selectionOriginX && posY >= 2 * SPRAY_SPACING + selectionOriginY && posX <= 2 * SPRAY_SPACING + selectionOriginX && posY <= 3 * SPRAY_SPACING + selectionOriginY) {
             selectedIndex = 3;
         }
-
-        if (mouseX >= 2 * SPRAY_TEXTURE_WIDTH && mouseY >= 2 * SPRAY_TEXTURE_HEIGHT && mouseX <= 3 * SPRAY_TEXTURE_WIDTH && mouseY <= 3 * SPRAY_TEXTURE_HEIGHT) {
+        if (posX >= 2 * SPRAY_SPACING + selectionOriginX && posY >= 2 * SPRAY_SPACING + selectionOriginY && posX <= 3 * SPRAY_SPACING + selectionOriginX && posY <= 3 * SPRAY_SPACING + selectionOriginY) {
             selectedIndex = 4;
         }
-
-        if (mouseX >= 2 * SPRAY_TEXTURE_WIDTH && mouseY >= SPRAY_TEXTURE_HEIGHT && mouseX <= 3 * SPRAY_TEXTURE_WIDTH && mouseY <= 2 * SPRAY_TEXTURE_HEIGHT) {
+        if (posX >= 2 * SPRAY_SPACING + selectionOriginX && posY >= SPRAY_SPACING + selectionOriginY && posX <= 3 * SPRAY_SPACING + selectionOriginX && posY <= 2 * SPRAY_SPACING + selectionOriginY) {
             selectedIndex = 5;
         }
+        if (posX >= 2 * SPRAY_SPACING + selectionOriginX && posY >= selectionOriginY && posX <= 3 * SPRAY_SPACING + selectionOriginX && posY <= SPRAY_SPACING + selectionOriginY) {
+            selectedIndex = 6;
+        }
+        if (posX >= SPRAY_SPACING + selectionOriginX && posY >= selectionOriginY && posX <= 2 * SPRAY_SPACING + selectionOriginX && posY <= SPRAY_SPACING + selectionOriginY) {
+            selectedIndex = 7;
+        }
+
     }
 
 

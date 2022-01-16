@@ -2,30 +2,25 @@ package daniel.spraymadness.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import daniel.spraymadness.client.SprayMadness;
-import daniel.spraymadness.client.mixin.TitleScreenMixin;
 import daniel.spraymadness.client.texture.SprayTexture;
 import daniel.spraymadness.client.util.gui.DrawHelper;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
-import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Util;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.logging.Logger;
 
 public class SprayGalleryScreen extends Screen {
     private static final int WHITE = (255 << 16) + (255 << 8) + 255;
     private static final int MAX_TEXTURES_PER_ROW = 4;
     private static final int TEXTURE_OFFSET = 80;
-    private static final TranslatableText TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.add_spray.tooltip");
+    private static final TranslatableText ADD_SPRAY_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.add_spray.tooltip");
+
+    //TODO: Move this to a shared constants class
+    public static final int DELETE_SELECTION_COLOR = (122 << 24) + (255 << 16) + (71 << 8) + 71;
 
     private static final int TEXTURE_WIDTH = 40;
     private static final int TEXTURE_HEIGHT = 40;
@@ -38,6 +33,10 @@ public class SprayGalleryScreen extends Screen {
 
     private int bottom;
     private int top;
+
+    private boolean deleting;
+
+    private int currentSprayTextureIndex;
 
     private static final Text TITLE = new TranslatableText("gui.spray_madness.spray_gallery.title");
 
@@ -66,10 +65,27 @@ public class SprayGalleryScreen extends Screen {
                         ButtonWidget.WIDGETS_TEXTURE,
                         256, 256,
                         this::showSelectDialog,
-                        (button, matrices, mouseX, mouseY) -> SprayGalleryScreen.this.renderTooltip(matrices, TOOLTIP, mouseX, mouseY),
+                        (button, matrices, mouseX, mouseY) -> SprayGalleryScreen.this.renderTooltip(matrices, ADD_SPRAY_TOOLTIP, mouseX, mouseY),
                         LiteralText.EMPTY
                 )
         );
+
+        this.addDrawableChild(
+                new TexturedButtonWidget(
+                        this.width / 2 - 50, this.height / 4 + 132,
+                        20, 20,
+                        0, 106, 20,
+                        ButtonWidget.WIDGETS_TEXTURE,
+                        256, 256,
+                        this::toggleDeleteMode,
+                        (button, matrices, mouseX, mouseY) -> SprayGalleryScreen.this.renderTooltip(matrices, ADD_SPRAY_TOOLTIP, mouseX, mouseY),
+                        LiteralText.EMPTY
+                )
+        );
+    }
+
+    private void toggleDeleteMode(ButtonWidget button) {
+        deleting = !deleting;
     }
 
     private void showSelectDialog(ButtonWidget buttonWidget) {
@@ -111,11 +127,23 @@ public class SprayGalleryScreen extends Screen {
             final int yPosAdjusted = yPos + galleryY;
 
             if (mouseX >= xPosAdjusted && mouseY >= yPosAdjusted && mouseX <= xPosAdjusted + TEXTURE_WIDTH && mouseY <= yPosAdjusted + TEXTURE_HEIGHT) {
-                DrawableHelper.fill(matrices, xPos, yPos, xPos + TEXTURE_WIDTH, yPos + TEXTURE_HEIGHT, SprayWheelScreen.SELECTION_COLOR);
+                currentSprayTextureIndex = i;
+                DrawableHelper.fill(matrices, xPos, yPos, xPos + TEXTURE_WIDTH, yPos + TEXTURE_HEIGHT, deleting ? DELETE_SELECTION_COLOR : SprayWheelScreen.SELECTION_COLOR );
             }
+            else currentSprayTextureIndex = -1;
             DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(texture.getTitle()), xPos + TEXTURE_WIDTH / 2, yPos + TEXTURE_HEIGHT, WHITE);
         }
         matrices.pop();
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        System.out.println(currentSprayTextureIndex);
+        if (deleting && currentSprayTextureIndex >= 0 && button == 1) {
+            SprayMadness.sprayTextures.remove(currentSprayTextureIndex);
+            currentSprayTextureIndex = -1;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private int getScrollAmount() {

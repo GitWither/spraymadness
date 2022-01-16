@@ -17,6 +17,7 @@ public class SprayTexture extends AbstractTexture {
 
     private NativeImage texture;
     private Identifier identifier;
+    private String path;
 
     public SprayTexture(File source) {
         try {
@@ -26,6 +27,7 @@ public class SprayTexture extends AbstractTexture {
             NativeImage nativeImage = NativeImage.read(inputStream);
             nativeImage.mirrorVertically();
             texture = nativeImage;
+            path = source.getPath();
 
             this.identifier = new Identifier(SprayMadness.MOD_ID, source.getName());
 
@@ -77,5 +79,9 @@ public class SprayTexture extends AbstractTexture {
 
     public String getTitle() {
         return StringUtils.capitalize(this.identifier.getPath().replace(".png", ""));
+    }
+
+    public String getPath() {
+        return path;
     }
 }

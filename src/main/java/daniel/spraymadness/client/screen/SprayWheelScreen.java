@@ -44,6 +44,7 @@ public class SprayWheelScreen extends Screen {
     private static final int WHITE = (255 << 16) + (255 << 8) + 255;
 
     //ARGB format (this sucks)
+    //TODO: Move this to a shared constants class
     public static final int SELECTION_COLOR = (122 << 24) + (51 << 16) + (255 << 8) + 106;
 
     public SprayWheelScreen() {

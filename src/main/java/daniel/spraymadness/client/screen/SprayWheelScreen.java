@@ -3,6 +3,7 @@ package daniel.spraymadness.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import daniel.spraymadness.client.SprayMadness;
 import daniel.spraymadness.client.texture.SprayTexture;
+import daniel.spraymadness.client.util.gui.DrawHelper;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.*;
@@ -119,7 +120,7 @@ public class SprayWheelScreen extends Screen {
                 matrices.push();
                 matrices.translate(x * SPRAY_SPACING, y * SPRAY_SPACING, 0);
                 RenderSystem.setShaderTexture(0, texture.getIdentifier());
-                SprayWheelScreen.drawSprayTexture(matrices, texture, x, y);
+                DrawHelper.drawSprayTexture(matrices, texture, x, y, SPRAY_TEXTURE_WIDTH, SPRAY_TEXTURE_HEIGHT);
                 matrices.pop();
 
                 if (selectedIndex == i) {
@@ -191,29 +192,5 @@ public class SprayWheelScreen extends Screen {
             selectedIndex = 7;
         }
 
-    }
-
-
-    public static void drawSprayTexture(MatrixStack matrices, SprayTexture texture, int x, int y) {
-        Matrix4f posMat = matrices.peek().getPositionMatrix();
-
-        int x1 = x + SPRAY_TEXTURE_WIDTH;
-        int y1 = y + SPRAY_TEXTURE_HEIGHT;
-
-        RenderSystem.setShaderTexture(0, texture.getIdentifier());
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-
-        bufferBuilder.vertex(posMat, x, y1, 0).texture(0, 1).next();
-        bufferBuilder.vertex(posMat, x1, y1, 0).texture(1, 1).next();
-        bufferBuilder.vertex(posMat, x1, y, 0).texture(1, 0).next();
-        bufferBuilder.vertex(posMat, x, y, 0).texture(0, 0).next();
-
-        bufferBuilder.end();
-
-        BufferRenderer.draw(bufferBuilder);
     }
 }

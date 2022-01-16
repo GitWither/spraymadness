@@ -23,9 +23,12 @@ import java.util.logging.Logger;
 
 public class SprayGalleryScreen extends Screen {
     private static final int WHITE = (255 << 16) + (255 << 8) + 255;
-    private static final int MAX_TEXTURES_PER_ROW = 8;
-    private static final int TEXTURE_OFFSET = 50;
+    private static final int MAX_TEXTURES_PER_ROW = 4;
+    private static final int TEXTURE_OFFSET = 80;
     private static final TranslatableText TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.add_spray.tooltip");
+
+    private static final int TEXTURE_WIDTH = 40;
+    private static final int TEXTURE_HEIGHT = 40;
 
     private int galleryX;
     private int galleryY;
@@ -49,7 +52,7 @@ public class SprayGalleryScreen extends Screen {
         this.titleX = this.width / 2;
         this.titleY = 15;
 
-        this.galleryX = (int) (this.width / 2f - (50 * MAX_TEXTURES_PER_ROW - 25) / 2f);
+        this.galleryX = (int) (this.width / 2f - (TEXTURE_OFFSET * MAX_TEXTURES_PER_ROW - TEXTURE_WIDTH) / 2f);
         this.galleryY = 50;
 
         this.bottom = this.height - 64;
@@ -102,15 +105,15 @@ public class SprayGalleryScreen extends Screen {
             final int yPos = relativeOffset * TEXTURE_OFFSET;
 
             RenderSystem.setShaderTexture(0, texture.getIdentifier());
-            SprayWheelScreen.drawSprayTexture(matrices, texture, xPos, yPos);
+            DrawHelper.drawSprayTexture(matrices, texture, xPos, yPos, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
             final int xPosAdjusted = xPos + galleryX;
             final int yPosAdjusted = yPos + galleryY;
 
-            if (mouseX >= xPosAdjusted && mouseY >= yPosAdjusted && mouseX <= xPosAdjusted + 25 && mouseY <= yPosAdjusted + 25) {
-                DrawableHelper.fill(matrices, xPos, yPos, xPos + 25, yPos + 25, SprayWheelScreen.SELECTION_COLOR);
+            if (mouseX >= xPosAdjusted && mouseY >= yPosAdjusted && mouseX <= xPosAdjusted + TEXTURE_WIDTH && mouseY <= yPosAdjusted + TEXTURE_HEIGHT) {
+                DrawableHelper.fill(matrices, xPos, yPos, xPos + TEXTURE_WIDTH, yPos + TEXTURE_HEIGHT, SprayWheelScreen.SELECTION_COLOR);
             }
-            DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(texture.getTitle()), xPos + 13, yPos + 25, WHITE);
+            DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(texture.getTitle()), xPos + TEXTURE_WIDTH / 2, yPos + TEXTURE_HEIGHT, WHITE);
         }
         matrices.pop();
     }

@@ -6,11 +6,13 @@ import daniel.spraymadness.client.texture.SprayTexture;
 import daniel.spraymadness.client.util.Spray;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderEffect;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.InputUtil;
@@ -73,6 +75,7 @@ public class SprayMadness implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> {
             LOGGER.info("QUITTING");
         });
+
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (SPAWN_SPRAY_KEYBIND.wasPressed()) {

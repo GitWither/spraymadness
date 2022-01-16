@@ -43,7 +43,7 @@ public class SprayWheelScreen extends Screen {
     private static final int WHITE = (255 << 16) + (255 << 8) + 255;
 
     //ARGB format (this sucks)
-    private static final int SELECTION_COLOR = (122 << 24) + (51 << 16) + (255 << 8) + 106;
+    public static final int SELECTION_COLOR = (122 << 24) + (51 << 16) + (255 << 8) + 106;
 
     public SprayWheelScreen() {
         super(TITLE);
@@ -194,7 +194,7 @@ public class SprayWheelScreen extends Screen {
     }
 
 
-    private static void drawSprayTexture(MatrixStack matrices, SprayTexture texture, int x, int y) {
+    public static void drawSprayTexture(MatrixStack matrices, SprayTexture texture, int x, int y) {
         Matrix4f posMat = matrices.peek().getPositionMatrix();
 
         int x1 = x + SPRAY_TEXTURE_WIDTH;

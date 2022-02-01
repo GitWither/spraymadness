@@ -14,6 +14,7 @@ import org.apache.commons.lang3.text.WordUtils;
 import java.io.*;
 
 public class SprayTexture extends AbstractTexture {
+    //TODO: Add some method to shorten the title if it's too long
 
     private NativeImage texture;
     private Identifier identifier;

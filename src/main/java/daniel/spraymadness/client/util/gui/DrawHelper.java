@@ -29,8 +29,8 @@ public class DrawHelper {
     public static void drawSprayTexture(MatrixStack matrices, SprayTexture texture, int x, int y, int width, int height) {
         Matrix4f posMat = matrices.peek().getPositionMatrix();
 
-        int x1 = x + width;
-        int y1 = y + height;
+        final int x1 = x + width;
+        final int y1 = y + height;
 
         RenderSystem.setShaderTexture(0, texture.getIdentifier());
         RenderSystem.setShader(GameRenderer::getPositionTexShader);

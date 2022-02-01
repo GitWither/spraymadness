@@ -1,23 +1,30 @@
 #version 150
+#moj_import <fog.glsl>
 
 uniform sampler2D Sampler0;
 
 uniform vec4 ColorModulator;
+uniform float FogStart;
+uniform float FogEnd;
+uniform vec4 FogColor;
 
+in float vertexDistance;
 in vec4 vertexColor;
 in vec2 texCoord0;
-in vec2 texCoord2;
-in vec4 normal;
-in vec3 clipPosition;
-in vec4 viewSpacePosition;
-in mat4 inverseViewProjection;
 
 out vec4 fragColor;
 
+void clip(vec2 texCoord0) {
+    if (texCoord0.x < 0.0 || texCoord0.y < 0.0 || texCoord0.x > 1.0 || texCoord0.y > 1.0) {
+        discard;
+    }
+}
+
 void main() {
+    clip(texCoord0);
 
-    fragColor = texture2D(Sampler0, texCoord0) * ColorModulator;
+    vec4 color = texture(Sampler0, clamp(texCoord0, 0.0, 1.0));
+    color *= vertexColor * ColorModulator;
 
-    //vec4 color = texture(Sampler0, texCoord0) * vertexColor;
-    //fragColor = color * ColorModulator;
+    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderEffect;
@@ -72,26 +73,21 @@ public class SprayMadness implements ClientModInitializer {
 
         WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register(WorldRenderingCallbacks::renderSprays);
 
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            //TODO: load sprays
+        });
+
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            //TODO: Save sprays
+            totalSprays.clear();
+        });
+
         ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> {
             LOGGER.info("QUITTING");
         });
 
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (SPAWN_SPRAY_KEYBIND.wasPressed()) {
-                HitResult hit = client.crosshairTarget;
-                if (hit != null) {
-                    switch (hit.getType()) {
-                        case MISS:
-                            break;
-                        case BLOCK:
-                            Spray spray = new Spray(sprayTextures.get(0), new Vec3f((float)hit.getPos().x, (float)hit.getPos().y, (float)hit.getPos().z), ((BlockHitResult)hit).getSide());
-                            client.player.sendMessage(new LiteralText("Spray added "), false);
-                            totalSprays.add(spray);
-                    }
-                }
-            }
-
             if (SPRAY_WHEEL_KEYBIND.isPressed() && !(client.currentScreen instanceof SprayWheelScreen)) {
                 client.setScreen(new SprayWheelScreen());
             }

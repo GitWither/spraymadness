@@ -33,6 +33,7 @@ import java.util.List;
 
 @Environment(net.fabricmc.api.EnvType.CLIENT)
 public class SprayMadness implements ClientModInitializer {
+    public static final boolean SIMPLIFIED_RENDERING = true;
 
     public static List<Spray> totalSprays = new ArrayList<>();
     public static List<SprayTexture> sprayTextures = new ArrayList<>();

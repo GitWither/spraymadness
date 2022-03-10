@@ -18,6 +18,7 @@ public class SprayGalleryScreen extends Screen {
     private static final int MAX_TEXTURES_PER_ROW = 4;
     private static final int TEXTURE_OFFSET = 80;
     private static final TranslatableText ADD_SPRAY_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.add_spray.tooltip");
+    private static final TranslatableText DELETE_SPRAY_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.delete_spray.tooltip");
 
     //TODO: Move this to a shared constants class
     public static final int DELETE_SELECTION_COLOR = (122 << 24) + (255 << 16) + (71 << 8) + 71;
@@ -54,8 +55,34 @@ public class SprayGalleryScreen extends Screen {
         this.galleryX = (int) (this.width / 2f - (TEXTURE_OFFSET * MAX_TEXTURES_PER_ROW - TEXTURE_WIDTH) / 2f);
         this.galleryY = 50;
 
-        this.bottom = this.height - 64;
-        this.top = 32;
+        this.bottom = this.height - 75;
+        this.top = 55;
+
+        this.addDrawableChild(
+                new ButtonWidget(
+                        this.width / 2 - 10 + 50, this.height / 2 + 50,
+                        20, 20,
+                        new LiteralText(">"),
+                        button -> {
+                            if (currentSprayTextureIndex + 1 < SprayMadness.sprayTextures.size()) {
+                                currentSprayTextureIndex++;
+                            }
+                        }
+                )
+        );
+
+        this.addDrawableChild(
+                new ButtonWidget(
+                        this.width / 2 - 10 - 50, this.height / 2 + 50,
+                        20, 20,
+                        new LiteralText("<"),
+                        button -> {
+                            if (currentSprayTextureIndex > 0) {
+                                currentSprayTextureIndex--;
+                            }
+                        }
+                )
+        );
 
         this.addDrawableChild(
                 new TexturedButtonWidget(
@@ -77,15 +104,15 @@ public class SprayGalleryScreen extends Screen {
                         0, 106, 20,
                         ButtonWidget.WIDGETS_TEXTURE,
                         256, 256,
-                        this::toggleDeleteMode,
-                        (button, matrices, mouseX, mouseY) -> SprayGalleryScreen.this.renderTooltip(matrices, ADD_SPRAY_TOOLTIP, mouseX, mouseY),
+                        this::deleteCurrentSpray,
+                        (button, matrices, mouseX, mouseY) -> SprayGalleryScreen.this.renderTooltip(matrices, DELETE_SPRAY_TOOLTIP, mouseX, mouseY),
                         LiteralText.EMPTY
                 )
         );
     }
 
-    private void toggleDeleteMode(ButtonWidget button) {
-        deleting = !deleting;
+    private void deleteCurrentSpray(ButtonWidget button) {
+        SprayMadness.sprayTextures.remove(currentSprayTextureIndex);
     }
 
     private void showSelectDialog(ButtonWidget buttonWidget) {
@@ -100,40 +127,39 @@ public class SprayGalleryScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(MatrixStack matrices) {
+        super.renderBackground(matrices);
+        DrawHelper.drawOptionsGradient(top, bottom, 0, this.width, getScrollAmount());
+    }
+
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
 
-        DrawableHelper.drawCenteredText(matrices, this.textRenderer, title, titleX, titleY, 0xFFFFFFFF);
-
-        DrawHelper.drawOptionsGradient(top, bottom, 0, this.width, getScrollAmount());
 
         super.render(matrices, mouseX, mouseY, delta);
 
-
-        matrices.push();
-        matrices.translate(galleryX, galleryY, 0);
-        for (int i = 0; i < SprayMadness.sprayTextures.size(); i++) {
-            SprayTexture texture = SprayMadness.sprayTextures.get(i);
-
-            final int relativeOffset = i / MAX_TEXTURES_PER_ROW;
-
-            final int xPos = i * TEXTURE_OFFSET - (relativeOffset * TEXTURE_OFFSET * MAX_TEXTURES_PER_ROW);
-            final int yPos = relativeOffset * TEXTURE_OFFSET;
-
+        DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(currentSprayTextureIndex + 1 + "/" + SprayMadness.sprayTextures.size()), this.width / 2, this.height / 2 + 56, WHITE);
+        if (currentSprayTextureIndex > -1 && currentSprayTextureIndex < SprayMadness.sprayTextures.size()) {
+            SprayTexture texture = SprayMadness.sprayTextures.get(currentSprayTextureIndex);
             RenderSystem.setShaderTexture(0, texture.getIdentifier());
-            DrawHelper.drawSprayTexture(matrices, texture, xPos, yPos, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            DrawHelper.drawSprayTexture(matrices, texture, this.width / 2 - TEXTURE_WIDTH, this.height / 2 - TEXTURE_HEIGHT, TEXTURE_WIDTH * 2, TEXTURE_HEIGHT * 2);
+            DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(texture.getTitle()), this.width / 2, this.height / 2 - 60, WHITE);
 
-            final int xPosAdjusted = xPos + galleryX;
-            final int yPosAdjusted = yPos + galleryY;
-
-            if (mouseX >= xPosAdjusted && mouseY >= yPosAdjusted && mouseX <= xPosAdjusted + TEXTURE_WIDTH && mouseY <= yPosAdjusted + TEXTURE_HEIGHT) {
-                currentSprayTextureIndex = i;
-                DrawableHelper.fill(matrices, xPos, yPos, xPos + TEXTURE_WIDTH, yPos + TEXTURE_HEIGHT, deleting ? DELETE_SELECTION_COLOR : SprayWheelScreen.SELECTION_COLOR );
+            if (currentSprayTextureIndex > 0) {
+                texture = SprayMadness.sprayTextures.get(currentSprayTextureIndex - 1);
+                RenderSystem.setShaderTexture(0, texture.getIdentifier());
+                DrawHelper.drawSprayTexture(matrices, texture, this.width / 2 - 80, this.height / 2 - 20, TEXTURE_WIDTH - 10, TEXTURE_HEIGHT - 10, 0.5f);
             }
-            else currentSprayTextureIndex = -1;
-            DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(texture.getTitle()), xPos + TEXTURE_WIDTH / 2, yPos + TEXTURE_HEIGHT, WHITE);
+
+            if (currentSprayTextureIndex + 1 < SprayMadness.sprayTextures.size()) {
+                texture = SprayMadness.sprayTextures.get(currentSprayTextureIndex + 1);
+                RenderSystem.setShaderTexture(0, texture.getIdentifier());
+                DrawHelper.drawSprayTexture(matrices, texture, this.width / 2 + 50, this.height / 2 - TEXTURE_HEIGHT / 2, TEXTURE_WIDTH - 10, TEXTURE_HEIGHT - 10, 0.5f);
+
+            }
         }
-        matrices.pop();
+
     }
 
     @Override

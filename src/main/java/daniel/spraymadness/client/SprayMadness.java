@@ -1,5 +1,6 @@
 package daniel.spraymadness.client;
 
+import daniel.spraymadness.client.io.SprayIOCallbacks;
 import daniel.spraymadness.client.render.WorldRenderingCallbacks;
 import daniel.spraymadness.client.screen.SprayWheelScreen;
 import daniel.spraymadness.client.texture.SprayTexture;
@@ -33,6 +34,7 @@ import java.util.List;
 
 @Environment(net.fabricmc.api.EnvType.CLIENT)
 public class SprayMadness implements ClientModInitializer {
+    public static String CURRENT_WORLD_KEY;
     public static final boolean SIMPLIFIED_RENDERING = true;
 
     public static List<Spray> totalSprays = new ArrayList<>();
@@ -74,14 +76,8 @@ public class SprayMadness implements ClientModInitializer {
 
         WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register(WorldRenderingCallbacks::renderSprays);
 
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            //TODO: load sprays
-        });
-
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            //TODO: Save sprays
-            totalSprays.clear();
-        });
+        ClientPlayConnectionEvents.JOIN.register(SprayIOCallbacks::loadSprays);
+        ClientPlayConnectionEvents.DISCONNECT.register(SprayIOCallbacks::saveSprays);
 
         ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> {
             LOGGER.info("QUITTING");
@@ -106,7 +102,7 @@ public class SprayMadness implements ClientModInitializer {
                 File spraysFile = new File(client.runDirectory, "sprays.dat");
 
                 if (spraysFile.exists()) {
-                    NbtCompound sprays = NbtIo.read(new File(MinecraftClient.getInstance().runDirectory, "sprays.dat"));
+                    NbtCompound sprays = NbtIo.read(new File(client.runDirectory, "sprays.dat"));
                     if (sprays != null) {
 
                         NbtList spraysList = sprays.getList("spray_textures", NbtElement.COMPOUND_TYPE);

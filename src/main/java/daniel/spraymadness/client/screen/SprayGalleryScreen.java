@@ -139,8 +139,11 @@ public class SprayGalleryScreen extends Screen {
 
         super.render(matrices, mouseX, mouseY, delta);
 
-        DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(currentSprayTextureIndex + 1 + "/" + SprayMadness.sprayTextures.size()), this.width / 2, this.height / 2 + 56, WHITE);
-        if (currentSprayTextureIndex > -1 && currentSprayTextureIndex < SprayMadness.sprayTextures.size()) {
+        int currentSprayCount = SprayMadness.sprayTextures.size();
+
+        DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(currentSprayCount > 0 ? (currentSprayTextureIndex + 1 + "/" + currentSprayCount) : "No sprays!"), this.width / 2, this.height / 2 + 56, WHITE);
+
+        if (currentSprayTextureIndex > -1 && currentSprayTextureIndex < currentSprayCount) {
             SprayTexture texture = SprayMadness.sprayTextures.get(currentSprayTextureIndex);
             RenderSystem.setShaderTexture(0, texture.getIdentifier());
             DrawHelper.drawSprayTexture(matrices, texture, this.width / 2 - TEXTURE_WIDTH, this.height / 2 - TEXTURE_HEIGHT, TEXTURE_WIDTH * 2, TEXTURE_HEIGHT * 2);

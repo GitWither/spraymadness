@@ -14,13 +14,15 @@ import java.io.*;
 public class Spray {
     Vec3f pos;
     Direction face;
+    Identifier dimension;
 
     SprayTexture texture;
 
-    public Spray(SprayTexture texture, Vec3f pos, Direction face) {
+    public Spray(SprayTexture texture, Vec3f pos, Direction face, Identifier dimension) {
         this.texture = texture;
         this.pos = pos;
         this.face = face;
+        this.dimension = dimension;
     }
 
     public Direction getFace() {
@@ -30,6 +32,8 @@ public class Spray {
     public Vec3f getPos() {
         return pos;
     }
+
+    public Identifier getDimension() {return dimension;}
 
     public Identifier getTextureIdentifier() {
         return this.texture.getIdentifier();

@@ -1,6 +1,7 @@
 package daniel.spraymadness.client.io;
 
 import daniel.spraymadness.client.SprayMadness;
+import daniel.spraymadness.client.texture.SprayTexture;
 import daniel.spraymadness.client.util.Spray;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.impl.networking.ChannelInfoHolder;
@@ -8,8 +9,10 @@ import net.minecraft.client.ClientGameSession;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.MinecraftClientGame;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.nbt.*;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3f;
@@ -55,7 +58,12 @@ public class SprayIOCallbacks {
 
                             Direction face = Direction.byId(sprayCompound.getInt("face_id"));
 
-                            SprayMadness.totalSprays.add(new Spray(SprayMadness.sprayTextures.get(0), new Vec3f(x, y, z), face));
+                            Identifier dimension = Identifier.tryParse(sprayCompound.getString("dimension"));
+                            Identifier textureId = Identifier.tryParse(sprayCompound.getString("texture"));
+
+                            SprayTexture texture = (SprayTexture) client.getTextureManager().getOrDefault(textureId, MissingSprite.getMissingSpriteTexture());
+
+                            SprayMadness.totalSprays.add(new Spray(texture, new Vec3f(x, y, z), face, dimension));
                         }
                     }
                 }
@@ -94,6 +102,8 @@ public class SprayIOCallbacks {
                     sprayNbt.put("z", NbtFloat.of(spray.getPos().getZ()));
 
                     sprayNbt.put("face_id", NbtInt.of(spray.getFace().getId()));
+                    sprayNbt.put("dimension", NbtString.of(spray.getDimension().toString()));
+                    sprayNbt.put("texture", NbtString.of(spray.getTextureIdentifier().toString()));
 
                     currentWorldSprays.add(sprayNbt);
                 }

@@ -101,7 +101,8 @@ public class SprayWheelScreen extends Screen {
                             Spray spray = new Spray(
                                     SprayMadness.sprayTextures.get(selectedIndex),
                                     new Vec3f((float)hit.getPos().x, (float)hit.getPos().y, (float)hit.getPos().z),
-                                    ((BlockHitResult)hit).getSide()
+                                    ((BlockHitResult)hit).getSide(),
+                                    client.player.world.getRegistryKey().getValue()
                             );
                             client.player.sendMessage(new LiteralText("Spray added "), false);
                             SprayMadness.totalSprays.add(spray);

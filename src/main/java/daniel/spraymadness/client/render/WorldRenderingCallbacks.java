@@ -59,7 +59,7 @@ public class WorldRenderingCallbacks
 
         Identifier dimensionId = ctx.world().getRegistryKey().getValue();
         for (Spray spray : SprayMadness.totalSprays) {
-            if (spray.getDimension() != dimensionId) continue;
+            if (!spray.getDimension().equals(dimensionId)) continue;
 
             BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL);
             RenderSystem.setShaderTexture(0, spray.getTextureIdentifier());
@@ -69,19 +69,19 @@ public class WorldRenderingCallbacks
 
             Vec3f sprayPos = spray.getPos();
 
-            int x1 = MathHelper.floor(sprayPos.getX() - RADIUS - 0.4);
-            int x2 = MathHelper.floor(sprayPos.getX() + RADIUS + 0.4);
-            int y1 = MathHelper.floor(sprayPos.getY() - RADIUS - 0.4);
-            //this is to make it placeable on low blocks
-            int y2 = MathHelper.ceil(sprayPos.getY() + RADIUS);
-            int z1 = MathHelper.floor(sprayPos.getZ() - RADIUS - 0.5);
-            int z2 = MathHelper.floor(sprayPos.getZ() + RADIUS + 0.5);
+            Vec3f facingVector = spray.getFace().getOpposite().getUnitVector();
+            int x1 = MathHelper.floor(sprayPos.getX() - RADIUS - 0.4 - 0.3 * facingVector.getX());
+            int x2 = MathHelper.floor(sprayPos.getX() + RADIUS + 0.4 - 0.3 * facingVector.getX());
+            int y1 = MathHelper.floor(sprayPos.getY() - RADIUS - 0.4 - 0.3 * facingVector.getY());
+            int y2 = MathHelper.floor(sprayPos.getY() + RADIUS + 0.4 - 0.3 * facingVector.getY());
+            int z1 = MathHelper.floor(sprayPos.getZ() - RADIUS - 0.4 - 0.3 * facingVector.getZ());
+            int z2 = MathHelper.floor(sprayPos.getZ() + RADIUS + 0.4 - 0.3 * facingVector.getZ());
             MatrixStack.Entry entry = ctx.matrixStack().peek();
 
             BlockPos blockPos1 = new BlockPos(x1, y1, z1);
             BlockPos blockPos2 = new BlockPos(x2, y2, z2);
             //DrawHelper.drawDebugSprayRange(x1, y1, z1, x2, y2, z2);
-            MinecraftClient.getInstance().particleManager.addParticle(ParticleTypes.WAX_ON.getType(), sprayPos.getX(), sprayPos.getY(), sprayPos.getZ(), 0, 0, 0);
+            //MinecraftClient.getInstance().particleManager.addParticle(ParticleTypes.WAX_ON.getType(), sprayPos.getX(), sprayPos.getY(), sprayPos.getZ(), 0, 0, 0);
 
             //VertexConsumer vertices = ctx.consumers().getBuffer(SHADOW_LAYER);
             for (BlockPos blockPos : BlockPos.iterate(blockPos1, blockPos2)) {
@@ -113,7 +113,7 @@ public class WorldRenderingCallbacks
         return true;
     }
 
-    private static void renderSprayPartUp(BufferBuilder builder, Box box, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minZ, float maxX, float maxZ, float minY) {
+    private static void renderSprayPartUp(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minZ, float maxX, float maxZ, float minY) {
         float x1 = minX - x;
         float x2 = maxX - x;
         float y1 = minY - y - 1;
@@ -132,7 +132,7 @@ public class WorldRenderingCallbacks
         builder.vertex(matrixEntry.getPositionMatrix(), x2, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, u2).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
     }
 
-    private static void renderSprayPartDown(BufferBuilder builder, Box box, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minZ, float maxX, float maxZ, float minY) {
+    private static void renderSprayPartDown(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minZ, float maxX, float maxZ, float minY) {
         float x1 = minX - x;
         float x2 = maxX - x;
         float y1 = minY - y + 1;
@@ -151,7 +151,7 @@ public class WorldRenderingCallbacks
         builder.vertex(matrixEntry.getPositionMatrix(), x2, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, u2).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
     }
 
-    private static void renderSprayPartNorth(BufferBuilder builder, Box box, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float maxX, float maxY, float minZ) {
+    private static void renderSprayPartNorth(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float maxX, float maxY, float minZ) {
         float x1 = minX - x;
         float x2 = maxX - x;
         float y1 = minY - y;
@@ -166,7 +166,7 @@ public class WorldRenderingCallbacks
         DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1, z1, x2, y2, z1, u1, v1, u2, v2);
     }
 
-    private static void renderSprayPartSouth(BufferBuilder builder, Box box, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float maxX, float maxY, float minZ) {
+    private static void renderSprayPartSouth(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float maxX, float maxY, float minZ) {
         float x1 = minX - x;
         float x2 = maxX - x;
         float y1 = minY - y;
@@ -181,7 +181,7 @@ public class WorldRenderingCallbacks
         DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1, z1, x2, y2, z1, u1, v1, u2, v2);
     }
 
-    private static void renderSprayPartEast(BufferBuilder builder, Box box, MatrixStack.Entry matrixEntry, float x, float y, float z, float minZ, float minY, float maxZ, float maxY, float minX) {
+    private static void renderSprayPartEast(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minZ, float minY, float maxZ, float maxY, float minX) {
         //minY - y - (1.0f - (float) box.maxY)
         float x1 = minX - x - 1;
         float y1 = minY - y;
@@ -200,7 +200,7 @@ public class WorldRenderingCallbacks
 
     }
 
-    private static void renderSprayPartWest(BufferBuilder builder, Box box, MatrixStack.Entry matrixEntry, float x, float y, float z, float minZ, float minY, float maxZ, float maxY, float minX) {
+    private static void renderSprayPartWest(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minZ, float minY, float maxZ, float maxY, float minX) {
         //minY - y - (1.0f - (float) box.maxY)
         float x1 = minX - x + 1;
         float y1 = minY - y;
@@ -248,22 +248,22 @@ public class WorldRenderingCallbacks
         //TODO: Make this work for stairs
 
         if (direction == Direction.UP) {
-            renderSprayPartUp(builder, box, matrixEntry, x, y, z, minX, minZ, maxX, maxZ, maxY);
+            renderSprayPartUp(builder, matrixEntry, x, y, z, minX, minZ, maxX, maxZ, maxY);
         }
         if (direction == Direction.DOWN) {
-            renderSprayPartDown(builder, box, matrixEntry, x, y, z, minX, minZ, maxX, maxZ, minY);
+            renderSprayPartDown(builder, matrixEntry, x, y, z, minX, minZ, maxX, maxZ, minY);
         }
         if (direction == Direction.NORTH) {
-            renderSprayPartNorth(builder, box, matrixEntry, x, y, z, minX, minY, maxX, maxY, minZ);
+            renderSprayPartNorth(builder, matrixEntry, x, y, z, minX, minY, maxX, maxY, minZ);
         }
         if (direction == Direction.SOUTH) {
-            renderSprayPartSouth(builder, box, matrixEntry, x, y, z, minX, minY, maxX, maxY, maxZ);
+            renderSprayPartSouth(builder, matrixEntry, x, y, z, minX, minY, maxX, maxY, maxZ);
         }
         if (direction == Direction.EAST) {
-            renderSprayPartEast(builder, box, matrixEntry, x, y, z, minZ, minY, maxZ, maxY, maxX);
+            renderSprayPartEast(builder, matrixEntry, x, y, z, minZ, minY, maxZ, maxY, maxX);
         }
         if (direction == Direction.WEST) {
-            renderSprayPartWest(builder, box, matrixEntry, x, y, z, minZ, minY, maxZ, maxY, minX);
+            renderSprayPartWest(builder, matrixEntry, x, y, z, minZ, minY, maxZ, maxY, minX);
         }
 
 

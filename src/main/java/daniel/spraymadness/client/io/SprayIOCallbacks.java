@@ -43,8 +43,6 @@ public class SprayIOCallbacks {
 
                 if (sprays == null) return;
 
-                //System.out.println(handler.getConnection().);
-
                 NbtCompound worldSprays = sprays.getCompound("world_sprays");
                 if (worldSprays == null) return;
 

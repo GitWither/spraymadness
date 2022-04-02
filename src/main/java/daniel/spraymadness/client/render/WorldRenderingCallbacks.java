@@ -57,7 +57,10 @@ public class WorldRenderingCallbacks
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
 
+        Identifier dimensionId = ctx.world().getRegistryKey().getValue();
         for (Spray spray : SprayMadness.totalSprays) {
+            if (spray.getDimension() != dimensionId) continue;
+
             BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL);
             RenderSystem.setShaderTexture(0, spray.getTextureIdentifier());
 

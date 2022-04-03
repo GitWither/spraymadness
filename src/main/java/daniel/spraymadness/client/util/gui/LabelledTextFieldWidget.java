@@ -19,7 +19,7 @@ public class LabelledTextFieldWidget extends TextFieldWidget {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.textRenderer.drawWithShadow(matrices, label, this.x, this.y - this.height / 2f, 0xA0A0A0);
+        this.textRenderer.draw(matrices, label, this.x, this.y - this.height / 2f, 0);
         super.render(matrices, mouseX, mouseY, delta);
     }
 

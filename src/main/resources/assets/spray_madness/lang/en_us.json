@@ -2,5 +2,6 @@
   "gui.spray_madness.spray_wheel.title": "Select Spray",
   "gui.spray_madness.spray_gallery.title": "Spray Gallery",
   "gui.spray_madness.spray_gallery.add_spray.tooltip": "Add Spray",
+  "gui.spray_madness.spray_gallery.add_spray.emissive": "Emissive",
   "gui.spray_madness.spray_gallery.delete_spray.tooltip": "Delete Spray"
 }

@@ -79,11 +79,6 @@ public class SprayMadness implements ClientModInitializer {
         ClientPlayConnectionEvents.JOIN.register(SprayIOCallbacks::loadSprays);
         ClientPlayConnectionEvents.DISCONNECT.register(SprayIOCallbacks::saveSprays);
 
-        ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> {
-            LOGGER.info("QUITTING");
-        });
-
-
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (SPRAY_WHEEL_KEYBIND.isPressed() && !(client.currentScreen instanceof SprayWheelScreen)) {
                 client.setScreen(new SprayWheelScreen());

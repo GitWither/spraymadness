@@ -150,7 +150,6 @@ public class WorldRenderingCallbacks
     }
 
     private static void renderSprayPartEastWest(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor) {
-        //minY - y - (1.0f - (float) box.maxY)
         float x1 = (factor > 0 ? minX : maxX) - x + factor;
         float y1 = minY - y;
         float y2 = maxY - y;

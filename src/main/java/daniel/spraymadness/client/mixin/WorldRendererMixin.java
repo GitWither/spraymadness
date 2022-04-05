@@ -17,7 +17,7 @@ public class WorldRendererMixin {
 
     @Inject(method = "render",  at = @At(value = "CONSTANT", args = "stringValue=destroyProgress", ordinal = 0))
     public void renderSprays(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix, CallbackInfo cb) {
-
+        /*
         for (Spray spray :
                 SprayMadness.totalSprays) {
             matrices.push();
@@ -39,5 +39,6 @@ public class WorldRendererMixin {
             consumer.vertex(1, 0, 0).color(1, 1, 1, 1).next();
             matrices.pop();
         }
+         */
     }
 }

@@ -3,6 +3,7 @@ package daniel.spraymadness.client.io;
 import daniel.spraymadness.client.SprayMadness;
 import daniel.spraymadness.client.texture.SprayTexture;
 import daniel.spraymadness.client.util.Spray;
+import daniel.spraymadness.client.util.SprayStorage;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.impl.networking.ChannelInfoHolder;
 import net.minecraft.client.ClientGameSession;
@@ -48,6 +49,7 @@ public class SprayIOCallbacks {
 
                 NbtList currentWorldSprays = worldSprays.getList(CURRENT_WORLD_KEY, NbtElement.COMPOUND_TYPE);
                 if (currentWorldSprays != null) {
+                    SprayStorage storage = SprayStorage.getInstance();
                     for (NbtElement sprayNbt : currentWorldSprays) {
                         if (sprayNbt instanceof NbtCompound sprayCompound) {
                             float x = sprayCompound.getFloat("x");
@@ -61,7 +63,7 @@ public class SprayIOCallbacks {
 
                             SprayTexture texture = (SprayTexture) client.getTextureManager().getOrDefault(textureId, MissingSprite.getMissingSpriteTexture());
 
-                            SprayMadness.totalSprays.add(new Spray(texture, new Vec3f(x, y, z), face, dimension));
+                            storage.addWorldSpray(new Spray(texture, new Vec3f(x, y, z), face, dimension));
                         }
                     }
                 }
@@ -72,7 +74,8 @@ public class SprayIOCallbacks {
     }
 
     public static void saveSprays(ClientPlayNetworkHandler handler, MinecraftClient client) {
-        if (SprayMadness.totalSprays.size() == 0) return;
+        SprayStorage storage = SprayStorage.getInstance();
+        if (storage.getWorldSpraySize() == 0) return;
 
         try {
             File spraysFile = new File(client.runDirectory, "sprays.dat");
@@ -92,7 +95,7 @@ public class SprayIOCallbacks {
 
                 currentWorldSprays.clear();
 
-                for (Spray spray : SprayMadness.totalSprays) {
+                for (Spray spray : storage.getTotalWorldSprays()) {
                     NbtCompound sprayNbt = new NbtCompound();
 
                     sprayNbt.put("x", NbtFloat.of(spray.getPos().getX()));
@@ -106,7 +109,7 @@ public class SprayIOCallbacks {
                     currentWorldSprays.add(sprayNbt);
                 }
 
-                SprayMadness.totalSprays.clear();
+                storage.clearWorldSprays();
 
                 worldSprays.put(CURRENT_WORLD_KEY, currentWorldSprays);
                 sprays.put("world_sprays", worldSprays);
@@ -117,6 +120,6 @@ public class SprayIOCallbacks {
         catch (IOException e) {
             SprayMadness.LOGGER.error(e.getMessage());
         }
-        SprayMadness.totalSprays.clear();
+        storage.clearWorldSprays();
     }
 }

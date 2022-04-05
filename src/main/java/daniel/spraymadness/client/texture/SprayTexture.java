@@ -8,13 +8,14 @@ import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.io.*;
+import java.util.Locale;
 
 public class SprayTexture extends AbstractTexture {
-    //TODO: Add some method to shorten the title if it's too long
 
     private NativeImage texture;
     private Identifier identifier;
@@ -25,12 +26,10 @@ public class SprayTexture extends AbstractTexture {
             if (!source.exists()) return;
 
             InputStream inputStream = new FileInputStream(source);
-            NativeImage nativeImage = NativeImage.read(inputStream);
-            nativeImage.mirrorVertically();
-            texture = nativeImage;
+            texture = NativeImage.read(inputStream);
             path = source.getPath();
 
-            this.identifier = new Identifier(SprayMadness.MOD_ID, source.getName());
+            this.identifier = new Identifier(SprayMadness.MOD_ID, Util.replaceInvalidChars(source.getName(), Identifier::isPathCharacterValid));
 
             if (!RenderSystem.isOnRenderThread()) {
                 RenderSystem.recordRenderCall(() -> {

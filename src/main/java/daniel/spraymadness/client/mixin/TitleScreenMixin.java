@@ -2,6 +2,7 @@ package daniel.spraymadness.client.mixin;
 
 import daniel.spraymadness.client.SprayMadness;
 import daniel.spraymadness.client.screen.SprayGalleryScreen;
+import daniel.spraymadness.client.util.SprayStorage;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -31,7 +32,7 @@ public abstract class TitleScreenMixin extends Screen {
     @Inject(method = "init", at = @At("HEAD"))
     public void addSprayGalleryButton(CallbackInfo cb) {
         this.addDrawableChild(new TexturedButtonWidget(this.width / 2 + 150, this.height / 4 + 132, 20, 20, 0, 0, 20, SPRAY_CAN, 32, 64, (button) -> {
-            this.client.setScreen(new SprayGalleryScreen());
+            this.client.setScreen(new SprayGalleryScreen(SprayStorage.getInstance()));
         }, (button, matrices, mouseX, mouseY) -> {
             TitleScreenMixin.super.renderTooltip(matrices, TOOLTIP, mouseX, mouseY);
         }, LiteralText.EMPTY));

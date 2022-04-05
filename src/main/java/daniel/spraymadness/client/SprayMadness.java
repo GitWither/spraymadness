@@ -5,6 +5,7 @@ import daniel.spraymadness.client.render.WorldRenderingCallbacks;
 import daniel.spraymadness.client.screen.SprayWheelScreen;
 import daniel.spraymadness.client.texture.SprayTexture;
 import daniel.spraymadness.client.util.Spray;
+import daniel.spraymadness.client.util.SprayStorage;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
@@ -36,9 +37,6 @@ import java.util.List;
 public class SprayMadness implements ClientModInitializer {
     public static String CURRENT_WORLD_KEY;
     public static final boolean SIMPLIFIED_RENDERING = true;
-
-    public static List<Spray> totalSprays = new ArrayList<>();
-    public static List<SprayTexture> sprayTextures = new ArrayList<>();
 
     public static final String MOD_ID = "spray_madness";
     public static final String NAME = "Spray Madness";
@@ -110,7 +108,7 @@ public class SprayMadness implements ClientModInitializer {
 
                                     SprayTexture newSprayTexture = new SprayTexture(new File(sprayCompound.getString("source")));
                                     if (newSprayTexture.getTexture() != null) {
-                                        sprayTextures.add(newSprayTexture);
+                                        SprayStorage.getInstance().addTexture(newSprayTexture);
                                     }
                                 }
                             }

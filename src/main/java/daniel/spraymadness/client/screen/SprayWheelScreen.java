@@ -3,7 +3,9 @@ package daniel.spraymadness.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import daniel.spraymadness.client.SprayMadness;
 import daniel.spraymadness.client.texture.SprayTexture;
+import daniel.spraymadness.client.util.Colors;
 import daniel.spraymadness.client.util.Spray;
+import daniel.spraymadness.client.util.SprayStorage;
 import daniel.spraymadness.client.util.gui.DrawHelper;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
@@ -18,16 +20,16 @@ import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3f;
 
 public class SprayWheelScreen extends Screen {
-    protected static final Identifier TEXTURE = new Identifier(SprayMadness.MOD_ID, "textures/gui/spray_wheel.png");
+    public static final Identifier TEXTURE = new Identifier(SprayMadness.MOD_ID, "textures/gui/spray_wheel.png");
 
     private static final Text TITLE = new TranslatableText("gui.spray_madness.spray_wheel.title");
 
-    private static final int SPRAY_SPACING = 38;
+    public static final int SPRAY_SPACING = 38;
 
-    private static final int SPRAY_TEXTURE_WIDTH = 25;
-    private static final int SPRAY_TEXTURE_HEIGHT = 25;
+    public static final int SPRAY_TEXTURE_WIDTH = 25;
+    public static final int SPRAY_TEXTURE_HEIGHT = 25;
 
-    private static final int SPRAY_QUAD_WIDTH = SPRAY_SPACING * 2 + SPRAY_TEXTURE_WIDTH;
+    public static final int SPRAY_QUAD_WIDTH = SPRAY_SPACING * 2 + SPRAY_TEXTURE_WIDTH;
 
     private int x;
     private int y;
@@ -45,11 +47,6 @@ public class SprayWheelScreen extends Screen {
 
     private static final int BACKGROUND_TEXTURE_OFFSET = 21;
 
-    private static final int WHITE = (255 << 16) + (255 << 8) + 255;
-
-    //ARGB format (this sucks)
-    //TODO: Move this to a shared constants class
-    public static final int SELECTION_COLOR = (122 << 24) + (51 << 16) + (255 << 8) + 106;
 
     public SprayWheelScreen() {
         super(TITLE);
@@ -99,13 +96,13 @@ public class SprayWheelScreen extends Screen {
                             break;
                         case BLOCK:
                             Spray spray = new Spray(
-                                    SprayMadness.sprayTextures.get(selectedIndex),
+                                    SprayStorage.getInstance().getSprayWheelTexture(selectedIndex),
                                     new Vec3f((float)hit.getPos().x, (float)hit.getPos().y, (float)hit.getPos().z),
                                     ((BlockHitResult)hit).getSide(),
                                     client.player.world.getRegistryKey().getValue()
                             );
                             client.player.sendMessage(new LiteralText("Spray added "), false);
-                            SprayMadness.totalSprays.add(spray);
+                            SprayStorage.getInstance().addWorldSpray(spray);
                     }
                 }
             }
@@ -122,7 +119,7 @@ public class SprayWheelScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
 
-        this.textRenderer.drawWithShadow(matrices, TITLE, this.titleX, this.titleY, WHITE);
+        this.textRenderer.drawWithShadow(matrices, TITLE, this.titleX, this.titleY, Colors.WHITE);
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, TEXTURE);
@@ -137,10 +134,11 @@ public class SprayWheelScreen extends Screen {
             int x = 0;
             int y = 0;
 
-            for (int i = 0; i < SprayMadness.sprayTextures.size(); i++) {
+            SprayStorage storage = SprayStorage.getInstance();
+            for (int i = 0; i < storage.getSprayWheelTextureSize(); i++) {
                 if (i > 7) break;
 
-                SprayTexture texture = SprayMadness.sprayTextures.get(i);
+                SprayTexture texture = storage.getSprayWheelTexture(i);
 
                 RenderSystem.setShaderTexture(0, texture.getIdentifier());
                 DrawHelper.drawSprayTexture(matrices, texture, x * SPRAY_SPACING, y * SPRAY_SPACING + y, SPRAY_TEXTURE_WIDTH, SPRAY_TEXTURE_HEIGHT);
@@ -151,11 +149,11 @@ public class SprayWheelScreen extends Screen {
                 int x2 = x1 + SPRAY_TEXTURE_WIDTH + 13;
                 int y2 = y1 + SPRAY_TEXTURE_HEIGHT + 13;
                 if (mouseX >= x1 && mouseY >= y1 && mouseX <= x2 && mouseY <= y2) {
-                    DrawHelper.drawSolidColor(matrices.peek().getPositionMatrix(), x * (SPRAY_SPACING) + x - 7.5f, y * (SPRAY_SPACING) + y - 5,  x * (SPRAY_SPACING) + SPRAY_TEXTURE_HEIGHT + x + 5.5f, y * (SPRAY_SPACING) + SPRAY_TEXTURE_HEIGHT + y + 8, SELECTION_COLOR);
+                    DrawHelper.drawSolidColor(matrices.peek().getPositionMatrix(), x * (SPRAY_SPACING) + x - 7.5f, y * (SPRAY_SPACING) + y - 5,  x * (SPRAY_SPACING) + SPRAY_TEXTURE_HEIGHT + x + 5.5f, y * (SPRAY_SPACING) + SPRAY_TEXTURE_HEIGHT + y + 8, Colors.SPRAY_WHEEL_SELECTION_COLOR);
                     selectedIndex = i;
                 }
 
-                String sprayName = texture.getTitle();
+                String sprayName = this.textRenderer.trimToWidth(texture.getTitle(), 75);
 
                 OrderedText text = OrderedText.styledForwardsVisitedString(sprayName, Style.EMPTY.withColor(TextColor.fromFormatting(Formatting.AQUA)));
                 matrices.push();
@@ -163,7 +161,7 @@ public class SprayWheelScreen extends Screen {
                 matrices.scale(0.5f, 0.5f, 1);
 
                 //here both x and y are 0 since they are adjusted within the matrix stack - if I translate after scaling it's not going to work
-                DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, text, 0, 0, WHITE);
+                DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, text, 0, 0, Colors.WHITE);
                 matrices.pop();
 
                 if (i >= 2 && i < 4) {
@@ -181,40 +179,5 @@ public class SprayWheelScreen extends Screen {
             }
         }
         matrices.pop();
-    }
-
-    @Override
-    public void mouseMoved(double posX, double posY) {
-        /*
-        //just so IntelliJ can stfu
-        if (this.client == null) return;
-
-        if (posX >= selectionOriginX && posY >= selectionOriginY && posX <= SPRAY_SPACING + selectionOriginX && posY <= SPRAY_SPACING + selectionOriginY) {
-            selectedIndex = 0;
-        }
-        if (posX >= selectionOriginX && posY >= SPRAY_SPACING + selectionOriginY && posX <= SPRAY_SPACING + selectionOriginX && posY <= 2 * SPRAY_SPACING + selectionOriginY) {
-            selectedIndex = 1;
-        }
-        if (posX >= selectionOriginX && posY >= 2 * SPRAY_SPACING + selectionOriginY && posX <= SPRAY_SPACING + selectionOriginX && posY <= 3 * SPRAY_SPACING + selectionOriginY) {
-            selectedIndex = 2;
-        }
-        if (posX >= SPRAY_SPACING + selectionOriginX && posY >= 2 * SPRAY_SPACING + selectionOriginY && posX <= 2 * SPRAY_SPACING + selectionOriginX && posY <= 3 * SPRAY_SPACING + selectionOriginY) {
-            selectedIndex = 3;
-        }
-        if (posX >= 2 * SPRAY_SPACING + selectionOriginX && posY >= 2 * SPRAY_SPACING + selectionOriginY && posX <= 3 * SPRAY_SPACING + selectionOriginX && posY <= 3 * SPRAY_SPACING + selectionOriginY) {
-            selectedIndex = 4;
-        }
-        if (posX >= 2 * SPRAY_SPACING + selectionOriginX && posY >= SPRAY_SPACING + selectionOriginY && posX <= 3 * SPRAY_SPACING + selectionOriginX && posY <= 2 * SPRAY_SPACING + selectionOriginY) {
-            selectedIndex = 5;
-        }
-        if (posX >= 2 * SPRAY_SPACING + selectionOriginX && posY >= selectionOriginY && posX <= 3 * SPRAY_SPACING + selectionOriginX && posY <= SPRAY_SPACING + selectionOriginY) {
-            selectedIndex = 6;
-        }
-        if (posX >= SPRAY_SPACING + selectionOriginX && posY >= selectionOriginY && posX <= 2 * SPRAY_SPACING + selectionOriginX && posY <= SPRAY_SPACING + selectionOriginY) {
-            selectedIndex = 7;
-        }
-
-         */
-
     }
 }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import daniel.spraymadness.client.SprayMadness;
 import daniel.spraymadness.client.util.Spray;
+import daniel.spraymadness.client.util.SprayStorage;
 import daniel.spraymadness.client.util.gui.DrawHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.block.*;
@@ -58,7 +59,8 @@ public class WorldRenderingCallbacks
         RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
 
         Identifier dimensionId = ctx.world().getRegistryKey().getValue();
-        for (Spray spray : SprayMadness.totalSprays) {
+        SprayStorage storage = SprayStorage.getInstance();
+        for (Spray spray : storage.getTotalWorldSprays()) {
             if (!spray.getDimension().equals(dimensionId)) continue;
 
             BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL);

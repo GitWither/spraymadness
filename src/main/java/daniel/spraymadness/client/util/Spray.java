@@ -33,6 +33,10 @@ public class Spray {
         return pos;
     }
 
+    public boolean isEmissive() {
+        return texture.isEmissive();
+    }
+
     public Identifier getDimension() {return dimension;}
 
     public Identifier getTextureIdentifier() {

@@ -382,6 +382,7 @@ public class SprayGalleryScreen extends Screen {
                     NbtCompound sprayNbt = new NbtCompound();
 
                     sprayNbt.put("source", NbtString.of(spray.getPath()));
+                    sprayNbt.put("emissive", NbtByte.of(spray.isEmissive()));
 
                     sprayTextures.add(sprayNbt);
 

@@ -20,8 +20,10 @@ public class SprayTexture extends AbstractTexture {
     private NativeImage texture;
     private Identifier identifier;
     private String path;
+    private boolean emissive;
 
-    public SprayTexture(File source) {
+    public SprayTexture(File source, boolean emissive) {
+        this.emissive = emissive;
         try {
             if (!source.exists()) return;
 
@@ -59,6 +61,10 @@ public class SprayTexture extends AbstractTexture {
     @Override
     public void load(ResourceManager manager) throws IOException {
 
+    }
+
+    public boolean isEmissive() {
+        return emissive;
     }
 
     public NativeImage getTexture() {

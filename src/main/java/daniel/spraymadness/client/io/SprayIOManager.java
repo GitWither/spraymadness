@@ -141,8 +141,9 @@ public class SprayIOManager {
                             if (sprayCompound.contains("source", NbtElement.STRING_TYPE))
                             {
                                 String source = sprayCompound.getString("source");
+                                boolean emissive = sprayCompound.getBoolean("emissive");
 
-                                SprayTexture newSprayTexture = new SprayTexture(new File(source));
+                                SprayTexture newSprayTexture = new SprayTexture(new File(source), emissive);
                                 if (newSprayTexture.getTexture() != null) {
                                     storage.loadedTextures.add(newSprayTexture);
                                 }

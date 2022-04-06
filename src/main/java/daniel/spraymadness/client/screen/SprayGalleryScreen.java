@@ -316,8 +316,8 @@ public class SprayGalleryScreen extends Screen {
         super.filesDragged(paths);
 
         for (Path path : paths) {
-            if (FilenameUtils.isExtension(path.getFileName().toString(), "png")) {
-                sprayStorage.loadedTextures.add(new SprayTexture(path.toFile()));
+            if (FilenameUtils.isExtension(path.getFileName().toString(), "png", "jpg", "jpeg")) {
+                sprayStorage.loadedTextures.add(new SprayTexture(path.toFile(), false));
             }
         }
     }

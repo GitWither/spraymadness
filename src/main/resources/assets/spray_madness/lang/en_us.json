@@ -11,5 +11,6 @@
   "gui.spray_madness.spray_gallery.spray_wheel.remove": "Remove",
   "gui.spray_madness.spray_gallery.spray_wheel.full.tooltip": "The spray wheel is currently full. Remove another spray to be able to add this one!",
   "gui.spray_madness.spray_gallery.spray_wheel.add.tooltip": "Add this spray to the spray wheel",
-  "gui.spray_madness.spray_gallery.spray_wheel.remove.tooltip": "Remove this spray from the spray wheel"
+  "gui.spray_madness.spray_gallery.spray_wheel.remove.tooltip": "Remove this spray from the spray wheel",
+  "gui.spray_madness.spray_gallery.back": "Back"
 }

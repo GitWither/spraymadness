@@ -28,8 +28,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class SprayGalleryScreen extends Screen {
-    private static final int MAX_TEXTURES_PER_ROW = 4;
-    private static final int TEXTURE_OFFSET = 80;
     private static final int GALLERY_OFFSET = 100;
 
     private static final Identifier WIDGETS = new Identifier(SprayMadness.MOD_ID, "textures/gui/widgets.png");
@@ -39,7 +37,7 @@ public class SprayGalleryScreen extends Screen {
     private static final TranslatableText DELETE_SPRAY_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.delete_spray.tooltip");
     private static final OrderedText TITLE = OrderedText.styledForwardsVisitedString(I18n.translate("gui.spray_madness.spray_gallery.title"), Style.EMPTY.withUnderline(true));
 
-    private SprayStorage sprayStorage;
+    private final SprayStorage sprayStorage;
     private AddSprayScreen addSprayScreen;
 
     private AddToWheelButtonWidget addToWheelButton;
@@ -73,6 +71,21 @@ public class SprayGalleryScreen extends Screen {
 
         this.bottom = this.height - 75;
         this.top = 55;
+
+        this.addDrawableChild(
+                new ButtonWidget(
+                        (this.width - 450) / 2,
+                        this.titleY,
+                        20, 20,
+                        new LiteralText("X"),
+                        button -> {
+                            this.onClose();
+                        },
+                        (button, matrices, mouseX, mouseY) -> {
+                            SprayGalleryScreen.this.renderTooltip(matrices, new TranslatableText("gui.spray_madness.spray_gallery.back"), mouseX, mouseY);
+                        }
+                )
+        );
 
         this.addDrawableChild(
                 new ButtonWidget(
@@ -224,7 +237,7 @@ public class SprayGalleryScreen extends Screen {
         DrawableHelper.fill(matrices, this.width / 2, this.top, this.width / 2 + 1, this.bottom, test);
 
         DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, TITLE, this.titleX, this.titleY, Colors.WHITE);
-        DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, TIP_LABEL.asOrderedText(), this.titleX, this.titleY + 220, Colors.WHITE);
+        DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, TIP_LABEL.asOrderedText(), this.titleX, (this.height + 215) / 2, Colors.WHITE);
 
         int currentSprayCount = sprayStorage.loadedTextures.size();
 
@@ -268,7 +281,7 @@ public class SprayGalleryScreen extends Screen {
 
             }
 
-            if (mouseX > x1 && mouseY > y1 && mouseX < x2 && mouseY < y2) {
+            if (mouseX > x1 && mouseY > y1 && mouseX < x2 && mouseY < y2 && !addingSpray) {
                 this.renderTooltip(matrices, new LiteralText(path), mouseX, mouseY);
             }
 

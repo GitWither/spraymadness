@@ -14,6 +14,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.nbt.*;
@@ -31,6 +32,9 @@ public class SprayGalleryScreen extends Screen {
     private static final int TEXTURE_OFFSET = 80;
     private static final int GALLERY_OFFSET = 100;
 
+    private static final Identifier WIDGETS = new Identifier(SprayMadness.MOD_ID, "textures/gui/widgets.png");
+
+    private static final TranslatableText TIP_LABEL = new TranslatableText("gui.spray_madness.spray_gallery.tip");
     private static final TranslatableText ADD_SPRAY_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.add_spray.tooltip");
     private static final TranslatableText DELETE_SPRAY_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.delete_spray.tooltip");
     private static final OrderedText TITLE = OrderedText.styledForwardsVisitedString(I18n.translate("gui.spray_madness.spray_gallery.title"), Style.EMPTY.withUnderline(true));
@@ -76,7 +80,7 @@ public class SprayGalleryScreen extends Screen {
                         20, 20,
                         new LiteralText(">"),
                         button -> {
-                            if (currentSprayTextureIndex + 1 < sprayStorage.getLoadedTextureSize()) {
+                            if (currentSprayTextureIndex + 1 < sprayStorage.loadedTextures.size()) {
                                 currentSprayTextureIndex++;
                             }
 
@@ -102,10 +106,10 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new TexturedButtonWidget(
-                        this.width / 2 - 10, this.height / 4 + 132,
+                        this.width / 2 - 10 - 50 - GALLERY_OFFSET, this.height / 4 + 135,
                         20, 20,
-                        0, 106, 20,
-                        ButtonWidget.WIDGETS_TEXTURE,
+                        0, 0, 20,
+                        WIDGETS,
                         256, 256,
                         this::showSelectDialog,
                         (button, matrices, mouseX, mouseY) -> SprayGalleryScreen.this.renderTooltip(matrices, ADD_SPRAY_TOOLTIP, mouseX, mouseY),
@@ -115,10 +119,10 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new TexturedButtonWidget(
-                        this.width / 2 - 50, this.height / 4 + 132,
+                        this.width / 2 - 10 + 50 - GALLERY_OFFSET, this.height / 4 + 135,
                         20, 20,
-                        0, 106, 20,
-                        ButtonWidget.WIDGETS_TEXTURE,
+                        40, 0, 20,
+                        WIDGETS,
                         256, 256,
                         this::deleteCurrentSpray,
                         (button, matrices, mouseX, mouseY) -> SprayGalleryScreen.this.renderTooltip(matrices, DELETE_SPRAY_TOOLTIP, mouseX, mouseY),
@@ -127,23 +131,23 @@ public class SprayGalleryScreen extends Screen {
         );
 
         addToWheelButton = this.addDrawableChild(
-                new AddToWheelButtonWidget(this.width / 2 - GALLERY_OFFSET - 30, this.height / 4 + 130, 60, 20, new TranslatableText("add_to_wheel"), button -> {
-                    SprayTexture texture = sprayStorage.getLoadedTexture(currentSprayTextureIndex);
+                new AddToWheelButtonWidget(this.width / 2 - GALLERY_OFFSET - 30, this.height / 4 + 135, 60, 20, new TranslatableText("add_to_wheel"), button -> {
+                    SprayTexture texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex);
 
-                    if (sprayStorage.getSprayWheelTextureSize() > 8) {
+                    if (sprayStorage.sprayWheelTextures.size() > 7) {
                         ((AddToWheelButtonWidget)button).setFull();
                     }
-                    if (sprayStorage.sprayWheelContainsTexture(texture)) {
-                        sprayStorage.removeSprayWheelTexture(texture);
+                    if (sprayStorage.sprayWheelTextures.contains(texture)) {
+                        sprayStorage.sprayWheelTextures.remove(texture);
                         ((AddToWheelButtonWidget)button).setAddMessage();
                         button.active = true;
                     }
                     else {
-                        sprayStorage.addTextureToSprayWheel(sprayStorage.getLoadedTexture(currentSprayTextureIndex));
+                        sprayStorage.sprayWheelTextures.add(sprayStorage.loadedTextures.get(currentSprayTextureIndex));
                         ((AddToWheelButtonWidget)button).setRemove();
                     }
                 }, (button, matrices, mouseX, mouseY) -> {
-                    SprayGalleryScreen.this.renderTooltip(matrices, new TranslatableText("Add this spray to the spray wheel"), mouseX, mouseY);
+                    SprayGalleryScreen.this.renderTooltip(matrices, ((AddToWheelButtonWidget)button).getTooltipMessage(), mouseX, mouseY);
                 })
         );
 
@@ -156,13 +160,13 @@ public class SprayGalleryScreen extends Screen {
     }
 
     private void updateAddToWheelButtonMessage() {
-        if (sprayStorage.getLoadedTextureSize() == 0) return;
+        if (sprayStorage.loadedTextures.size() == 0) return;
 
-        SprayTexture texture = sprayStorage.getLoadedTexture(currentSprayTextureIndex);
-        if (sprayStorage.sprayWheelContainsTexture(texture)) {
+        SprayTexture texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex);
+        if (sprayStorage.sprayWheelTextures.contains(texture)) {
             addToWheelButton.setRemove();
         }
-        else if (sprayStorage.getSprayWheelTextureSize() > 7) {
+        else if (sprayStorage.sprayWheelTextures.size() > 7) {
             addToWheelButton.setFull();
         }
         else {
@@ -171,7 +175,13 @@ public class SprayGalleryScreen extends Screen {
     }
 
     private void deleteCurrentSpray(ButtonWidget button) {
-        sprayStorage.removeLoadedTexture(currentSprayTextureIndex);
+        if (sprayStorage.loadedTextures.size() == 0) return;
+
+        sprayStorage.loadedTextures.remove(currentSprayTextureIndex);
+
+        if (currentSprayTextureIndex > 0) {
+            currentSprayTextureIndex--;
+        }
     }
 
     private void showSelectDialog(ButtonWidget buttonWidget) {
@@ -214,8 +224,9 @@ public class SprayGalleryScreen extends Screen {
         DrawableHelper.fill(matrices, this.width / 2, this.top, this.width / 2 + 1, this.bottom, test);
 
         DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, TITLE, this.titleX, this.titleY, Colors.WHITE);
+        DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, TIP_LABEL.asOrderedText(), this.titleX, this.titleY + 220, Colors.WHITE);
 
-        int currentSprayCount = sprayStorage.getLoadedTextureSize();
+        int currentSprayCount = sprayStorage.loadedTextures.size();
 
 
         RenderSystem.enableBlend();
@@ -228,8 +239,10 @@ public class SprayGalleryScreen extends Screen {
         DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(currentSprayCount > 0 ? (currentSprayTextureIndex + 1 + "/" + currentSprayCount) : "No sprays!"), this.width / 2 - GALLERY_OFFSET, this.height / 2 + 56, Colors.WHITE);
 
         if (currentSprayTextureIndex > -1 && currentSprayTextureIndex < currentSprayCount) {
-            SprayTexture texture = sprayStorage.getLoadedTexture(currentSprayTextureIndex);
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            SprayTexture texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex);
             String path = texture.getPath();
+            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
             RenderSystem.setShaderTexture(0, texture.getIdentifier());
 
             int x1 = this.width / 2 - TEXTURE_WIDTH - GALLERY_OFFSET;
@@ -242,13 +255,14 @@ public class SprayGalleryScreen extends Screen {
             DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(texture.getTitle()), this.width / 2 - GALLERY_OFFSET, this.height / 2 - 60, Colors.WHITE);
 
             if (currentSprayTextureIndex > 0) {
-                texture = sprayStorage.getLoadedTexture(currentSprayTextureIndex - 1);
+                texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex - 1);
                 RenderSystem.setShaderTexture(0, texture.getIdentifier());
+                //RenderSystem.setShaderColor(1.0f, 3.0f, 1.0f, 0.0f);
                 DrawHelper.drawSprayTexture(matrices, texture, this.width / 2 - 80 - GALLERY_OFFSET, this.height / 2 - 20, TEXTURE_WIDTH - 10, TEXTURE_HEIGHT - 10, 0.5f);
             }
 
-            if (currentSprayTextureIndex + 1 < sprayStorage.getLoadedTextureSize()) {
-                texture = sprayStorage.getLoadedTexture(currentSprayTextureIndex + 1);
+            if (currentSprayTextureIndex + 1 < sprayStorage.loadedTextures.size()) {
+                texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex + 1);
                 RenderSystem.setShaderTexture(0, texture.getIdentifier());
                 DrawHelper.drawSprayTexture(matrices, texture, this.width / 2 + 50 - GALLERY_OFFSET, this.height / 2 - TEXTURE_HEIGHT / 2, TEXTURE_WIDTH - 10, TEXTURE_HEIGHT - 10, 0.5f);
 
@@ -265,14 +279,13 @@ public class SprayGalleryScreen extends Screen {
         matrices.translate((this.width - 101) / 2f + GALLERY_OFFSET, (this.height - 123) / 2f, 0);
         int x = 0;
         int y = 0;
-        for (int i = 0; i < sprayStorage.getSprayWheelTextureSize(); i++) {
+        for (int i = 0; i < sprayStorage.sprayWheelTextures.size(); i++) {
             if (i > 7) break;
 
-            SprayTexture texture = sprayStorage.getSprayWheelTexture(i);
+            SprayTexture texture = sprayStorage.sprayWheelTextures.get(i);
 
             RenderSystem.setShaderTexture(0, texture.getIdentifier());
             DrawHelper.drawSprayTexture(matrices, texture, x * SprayWheelScreen.SPRAY_SPACING, y * SprayWheelScreen.SPRAY_SPACING + y, SprayWheelScreen.SPRAY_TEXTURE_WIDTH, SprayWheelScreen.SPRAY_TEXTURE_HEIGHT);
-            //DrawableHelper.fill(matrices, 0, 0,  SPRAY_SPACING - 7, SPRAY_SPACING, SELECTION_COLOR);
 
             if (i >= 2 && i < 4) {
                 x++;
@@ -304,7 +317,7 @@ public class SprayGalleryScreen extends Screen {
 
         for (Path path : paths) {
             if (FilenameUtils.isExtension(path.getFileName().toString(), "png")) {
-                sprayStorage.addTexture(new SprayTexture(path.toFile()));
+                sprayStorage.loadedTextures.add(new SprayTexture(path.toFile()));
             }
         }
     }
@@ -360,18 +373,25 @@ public class SprayGalleryScreen extends Screen {
                 }
 
                 NbtList sprayTextures = sprays.getList("spray_textures", NbtElement.COMPOUND_TYPE);
+                NbtList sprayWheelTextures = sprays.getList("spray_wheel", NbtElement.INT_TYPE);
 
                 sprayTextures.clear();
+                sprayWheelTextures.clear();
 
-                for (SprayTexture spray : sprayStorage.getLoadedTextures()) {
+                for (SprayTexture spray : sprayStorage.loadedTextures) {
                     NbtCompound sprayNbt = new NbtCompound();
 
                     sprayNbt.put("source", NbtString.of(spray.getPath()));
 
                     sprayTextures.add(sprayNbt);
+
+                    if (sprayStorage.sprayWheelTextures.contains(spray)) {
+                        sprayWheelTextures.add(NbtInt.of(sprayStorage.loadedTextures.indexOf(spray)));
+                    }
                 }
 
                 sprays.put("spray_textures", sprayTextures);
+                sprays.put("spray_wheel", sprayWheelTextures);
 
                 NbtIo.write(sprays, spraysFile);
             }

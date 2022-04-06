@@ -23,7 +23,7 @@ public abstract class TitleScreenMixin extends Screen {
     @Unique
     private static final TranslatableText TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.title");
     @Unique
-    private static final Identifier SPRAY_CAN = new Identifier(SprayMadness.MOD_ID, "textures/gui/prototypes/spray_can_vertical.png");
+    private static final Identifier SPRAY_CAN = new Identifier(SprayMadness.MOD_ID, "textures/gui/widgets.png");
 
     protected TitleScreenMixin(Text title) {
         super(title);
@@ -31,7 +31,7 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("HEAD"))
     public void addSprayGalleryButton(CallbackInfo cb) {
-        this.addDrawableChild(new TexturedButtonWidget(this.width / 2 + 150, this.height / 4 + 132, 20, 20, 0, 0, 20, SPRAY_CAN, 32, 64, (button) -> {
+        this.addDrawableChild(new TexturedButtonWidget(this.width / 2 + 150, this.height / 4 + 132, 20, 20, 20, 0, 20, SPRAY_CAN, 256, 256, (button) -> {
             this.client.setScreen(new SprayGalleryScreen(SprayStorage.getInstance()));
         }, (button, matrices, mouseX, mouseY) -> {
             TitleScreenMixin.super.renderTooltip(matrices, TOOLTIP, mouseX, mouseY);

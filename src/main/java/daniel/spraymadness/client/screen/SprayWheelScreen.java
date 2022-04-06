@@ -11,6 +11,8 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -23,6 +25,9 @@ public class SprayWheelScreen extends Screen {
     public static final Identifier TEXTURE = new Identifier(SprayMadness.MOD_ID, "textures/gui/spray_wheel.png");
 
     private static final Text TITLE = new TranslatableText("gui.spray_madness.spray_wheel.title");
+
+
+    private final SprayStorage storage;
 
     public static final int SPRAY_SPACING = 38;
 
@@ -48,8 +53,9 @@ public class SprayWheelScreen extends Screen {
     private static final int BACKGROUND_TEXTURE_OFFSET = 21;
 
 
-    public SprayWheelScreen() {
+    public SprayWheelScreen(SprayStorage storage) {
         super(TITLE);
+        this.storage = storage;
     }
 
     @Override
@@ -91,18 +97,15 @@ public class SprayWheelScreen extends Screen {
             if (selectedIndex >= 0) {
                 HitResult hit = client.crosshairTarget;
                 if (hit != null) {
-                    switch (hit.getType()) {
-                        case MISS:
-                            break;
-                        case BLOCK:
-                            Spray spray = new Spray(
-                                    SprayStorage.getInstance().getSprayWheelTexture(selectedIndex),
-                                    new Vec3f((float)hit.getPos().x, (float)hit.getPos().y, (float)hit.getPos().z),
-                                    ((BlockHitResult)hit).getSide(),
-                                    client.player.world.getRegistryKey().getValue()
-                            );
-                            client.player.sendMessage(new LiteralText("Spray added "), false);
-                            SprayStorage.getInstance().addWorldSpray(spray);
+                    if (hit.getType() == HitResult.Type.BLOCK) {
+                        Spray spray = new Spray(
+                                storage.sprayWheelTextures.get(selectedIndex),
+                                new Vec3f((float) hit.getPos().x, (float) hit.getPos().y, (float) hit.getPos().z),
+                                ((BlockHitResult) hit).getSide(),
+                                client.player.world.getRegistryKey().getValue()
+                        );
+                        client.world.playSound(((BlockHitResult) hit).getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, SoundCategory.PLAYERS, 5, 1, true);
+                        storage.totalWorldSprays.add(spray);
                     }
                 }
             }
@@ -134,11 +137,10 @@ public class SprayWheelScreen extends Screen {
             int x = 0;
             int y = 0;
 
-            SprayStorage storage = SprayStorage.getInstance();
-            for (int i = 0; i < storage.getSprayWheelTextureSize(); i++) {
+            for (int i = 0; i < storage.sprayWheelTextures.size(); i++) {
                 if (i > 7) break;
 
-                SprayTexture texture = storage.getSprayWheelTexture(i);
+                SprayTexture texture = storage.sprayWheelTextures.get(i);
 
                 RenderSystem.setShaderTexture(0, texture.getIdentifier());
                 DrawHelper.drawSprayTexture(matrices, texture, x * SPRAY_SPACING, y * SPRAY_SPACING + y, SPRAY_TEXTURE_WIDTH, SPRAY_TEXTURE_HEIGHT);

@@ -7,6 +7,7 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.util.math.Matrix3f;
 import net.minecraft.util.math.Matrix4f;
 
 public class DrawHelper {
@@ -101,10 +102,16 @@ public class DrawHelper {
     }
 
     public static void drawSprayTextureQuad(BufferBuilder builder, Matrix4f position, float x1, float y1, float z1, float x2, float y2, float z2, float u1, float v1, float u2, float v2) {
-        builder.vertex(position, x1, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, u2).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-        builder.vertex(position, x1, y2, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, v2).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-        builder.vertex(position, x2, y2, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, v2).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-        builder.vertex(position, x2, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, u2).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
+        Matrix3f mat = new Matrix3f();
+        mat.loadIdentity();
+        drawSprayTextureQuad(builder, position, mat, x1, y1, z1, x2, y2, z2, u1, v1, u2, v2, LightmapTextureManager.MAX_LIGHT_COORDINATE);
+    }
+
+    public static void drawSprayTextureQuad(BufferBuilder builder, Matrix4f position, Matrix3f normalMatrix, float x1, float y1, float z1, float x2, float y2, float z2, float u1, float v1, float u2, float v2, int light) {
+        builder.vertex(position, x1, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, u2).light(light).next();
+        builder.vertex(position, x1, y2, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, v2).light(light).next();
+        builder.vertex(position, x2, y2, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, v2).light(light).next();
+        builder.vertex(position, x2, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, u2).light(light).next();
     }
 
     public static void drawDebugSprayRange(float x1, float y1, float z1, float x2, float y2, float z2) {

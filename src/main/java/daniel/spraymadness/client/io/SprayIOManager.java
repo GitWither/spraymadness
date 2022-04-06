@@ -1,15 +1,15 @@
 package daniel.spraymadness.client.io;
 
 import daniel.spraymadness.client.SprayMadness;
+import daniel.spraymadness.client.render.SprayRenderer;
 import daniel.spraymadness.client.texture.SprayTexture;
 import daniel.spraymadness.client.util.Spray;
 import daniel.spraymadness.client.util.SprayStorage;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.impl.networking.ChannelInfoHolder;
-import net.minecraft.client.ClientGameSession;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.MinecraftClientGame;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.render.Shader;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.nbt.*;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -17,14 +17,18 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3f;
-import net.minecraft.world.level.storage.LevelStorage;
 
 import java.io.File;
 import java.io.IOException;
 
-public class SprayIOCallbacks {
-    private static String CURRENT_WORLD_KEY;
+public class SprayIOManager {
+    private String currentWorldKey;
+    private SprayStorage storage;
 
+    public SprayIOManager(SprayStorage storage) {
+        this.storage = storage;
+    }
+    
     private static String getWorldKey(ClientPlayNetworkHandler handler, MinecraftClient client) {
         IntegratedServer server = client.getServer();
         if (server != null) {
@@ -33,8 +37,8 @@ public class SprayIOCallbacks {
         return handler.getConnection().getAddress().toString();
     }
 
-    public static void loadSprays(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {
-        CURRENT_WORLD_KEY = getWorldKey(handler, client);
+    public void loadSprays(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {
+        currentWorldKey = getWorldKey(handler, client);
 
         try {
             File spraysFile = new File(client.runDirectory, "sprays.dat");
@@ -47,9 +51,8 @@ public class SprayIOCallbacks {
                 NbtCompound worldSprays = sprays.getCompound("world_sprays");
                 if (worldSprays == null) return;
 
-                NbtList currentWorldSprays = worldSprays.getList(CURRENT_WORLD_KEY, NbtElement.COMPOUND_TYPE);
+                NbtList currentWorldSprays = worldSprays.getList(currentWorldKey, NbtElement.COMPOUND_TYPE);
                 if (currentWorldSprays != null) {
-                    SprayStorage storage = SprayStorage.getInstance();
                     for (NbtElement sprayNbt : currentWorldSprays) {
                         if (sprayNbt instanceof NbtCompound sprayCompound) {
                             float x = sprayCompound.getFloat("x");
@@ -63,7 +66,7 @@ public class SprayIOCallbacks {
 
                             SprayTexture texture = (SprayTexture) client.getTextureManager().getOrDefault(textureId, MissingSprite.getMissingSpriteTexture());
 
-                            storage.addWorldSpray(new Spray(texture, new Vec3f(x, y, z), face, dimension));
+                            storage.totalWorldSprays.add(new Spray(texture, new Vec3f(x, y, z), face, dimension));
                         }
                     }
                 }
@@ -73,9 +76,8 @@ public class SprayIOCallbacks {
         }
     }
 
-    public static void saveSprays(ClientPlayNetworkHandler handler, MinecraftClient client) {
-        SprayStorage storage = SprayStorage.getInstance();
-        if (storage.getWorldSpraySize() == 0) return;
+    public void saveSprays(ClientPlayNetworkHandler handler, MinecraftClient client) {
+        if (storage.totalWorldSprays.size() == 0) return;
 
         try {
             File spraysFile = new File(client.runDirectory, "sprays.dat");
@@ -91,11 +93,11 @@ public class SprayIOCallbacks {
 
 
 
-                NbtList currentWorldSprays = worldSprays.getList(CURRENT_WORLD_KEY, NbtElement.COMPOUND_TYPE);
+                NbtList currentWorldSprays = worldSprays.getList(currentWorldKey, NbtElement.COMPOUND_TYPE);
 
                 currentWorldSprays.clear();
 
-                for (Spray spray : storage.getTotalWorldSprays()) {
+                for (Spray spray : storage.totalWorldSprays) {
                     NbtCompound sprayNbt = new NbtCompound();
 
                     sprayNbt.put("x", NbtFloat.of(spray.getPos().getX()));
@@ -109,9 +111,9 @@ public class SprayIOCallbacks {
                     currentWorldSprays.add(sprayNbt);
                 }
 
-                storage.clearWorldSprays();
+                storage.totalWorldSprays.clear();
 
-                worldSprays.put(CURRENT_WORLD_KEY, currentWorldSprays);
+                worldSprays.put(currentWorldKey, currentWorldSprays);
                 sprays.put("world_sprays", worldSprays);
 
                 NbtIo.write(sprays, spraysFile);
@@ -120,6 +122,69 @@ public class SprayIOCallbacks {
         catch (IOException e) {
             SprayMadness.LOGGER.error(e.getMessage());
         }
-        storage.clearWorldSprays();
+        storage.totalWorldSprays.clear();
+    }
+
+    public void loadSprayTextures(MinecraftClient client) {
+
+        try {
+            File spraysFile = new File(client.runDirectory, "sprays.dat");
+
+            if (spraysFile.exists()) {
+                NbtCompound sprays = NbtIo.read(new File(client.runDirectory, "sprays.dat"));
+                if (sprays != null) {
+
+                    NbtList spraysList = sprays.getList("spray_textures", NbtElement.COMPOUND_TYPE);
+
+                    for (NbtElement spray : spraysList) {
+                        if (spray instanceof NbtCompound sprayCompound) {
+                            if (sprayCompound.contains("source", NbtElement.STRING_TYPE))
+                            {
+                                String source = sprayCompound.getString("source");
+
+                                SprayTexture newSprayTexture = new SprayTexture(new File(source));
+                                if (newSprayTexture.getTexture() != null) {
+                                    storage.loadedTextures.add(newSprayTexture);
+                                }
+                            }
+                        }
+                    }
+
+                    NbtList sprayWheelList = sprays.getList("spray_wheel", NbtElement.INT_TYPE);
+
+
+                    for (NbtElement sprayIndex : sprayWheelList) {
+                        if (storage.loadedTextures.size() == 0) break;
+                        if (sprayIndex instanceof NbtInt spray) {
+                            if (storage.loadedTextures.size() <= spray.intValue()) continue;
+
+                            storage.sprayWheelTextures.add(storage.loadedTextures.get(spray.intValue()));
+                        }
+                    }
+
+                    SprayMadness.LOGGER.info(sprays.getSize());
+                }
+            }
+            else {
+                NbtCompound compound = new NbtCompound();
+                NbtList sprays = new NbtList();
+
+                compound.put("sprays", sprays);
+
+                NbtIo.write(compound, spraysFile);
+            }
+        }
+        catch (IOException e) {
+            SprayMadness.LOGGER.error(e.getMessage());
+        }
+    }
+
+    public Shader loadSprayShader(MinecraftClient client) {
+        try {
+            return new Shader(client.getResourceManager(), "spray", VertexFormats.POSITION_COLOR_TEXTURE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

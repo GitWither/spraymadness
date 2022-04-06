@@ -27,20 +27,32 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.opengl.GL11C.*;
 
-public class WorldRenderingCallbacks
+public class SprayRenderer
 {
+    private final SprayStorage storage;
+    private final Shader sprayShader;
     private static final BufferBuilder BUFFER_BUILDER = new BufferBuilder(256);
     private static final float RADIUS = 0.5f;
     private static final float SCALE = 2.0f;
     private static final float OFFSET = 0.5f;
+
+    public SprayRenderer(SprayStorage storage, Shader sprayShader) {
+        this.storage = storage;
+        this.sprayShader = sprayShader;
+    }
+
+    private Shader getSprayShader() {
+        return sprayShader;
+    }
     
-    public static boolean renderSprays(WorldRenderContext ctx, HitResult ctx2) {
+    public boolean renderSprays(WorldRenderContext ctx, HitResult ctx2) {
         ctx.matrixStack().push();
         ctx.matrixStack().translate(-ctx.camera().getPos().x, -ctx.camera().getPos().y, -ctx.camera().getPos().z);
 
@@ -48,7 +60,8 @@ public class WorldRenderingCallbacks
         RenderSystem.depthFunc(GL_LEQUAL);
         RenderSystem.disableCull();
 
-        RenderSystem.setShader(SprayMadness::getSprayShader);
+        MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager().enable();
+        RenderSystem.setShader(this::getSprayShader);
 
         MatrixStack matrixStack = RenderSystem.getModelViewStack();
         matrixStack.push();
@@ -59,11 +72,10 @@ public class WorldRenderingCallbacks
         RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
 
         Identifier dimensionId = ctx.world().getRegistryKey().getValue();
-        SprayStorage storage = SprayStorage.getInstance();
-        for (Spray spray : storage.getTotalWorldSprays()) {
+        for (Spray spray : storage.totalWorldSprays) {
             if (!spray.getDimension().equals(dimensionId)) continue;
 
-            BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL);
+            BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
             RenderSystem.setShaderTexture(0, spray.getTextureIdentifier());
 
             ctx.matrixStack().push();
@@ -87,12 +99,11 @@ public class WorldRenderingCallbacks
 
             BlockPos blockPos1 = new BlockPos(x1, y1, z1);
             BlockPos blockPos2 = new BlockPos(x2, y2, z2);
-            DrawHelper.drawDebugSprayRange(x1, y1, z1, x2, y2, z2);
-            //MinecraftClient.getInstance().particleManager.addParticle(ParticleTypes.WAX_ON.getType(), sprayPos.getX(), sprayPos.getY(), sprayPos.getZ(), 0, 0, 0);
 
-            //VertexConsumer vertices = ctx.consumers().getBuffer(SHADOW_LAYER);
             for (BlockPos blockPos : BlockPos.iterate(blockPos1, blockPos2)) {
-                renderSprayPart(BUFFER_BUILDER, ctx.world(), blockPos, entry, spray.getFace(), facingVector, sprayPos.getX(), sprayPos.getY(), sprayPos.getZ());
+                if (!Block.shouldDrawSide(ctx.world().getBlockState(blockPos), ctx.world(), blockPos, spray.getFace(), blockPos)) continue;
+
+                renderSprayPart(BUFFER_BUILDER, ctx.world(), blockPos, entry, spray.getFace(), facingVector, sprayPos.getX(), sprayPos.getY(), sprayPos.getZ(), WorldRenderer.getLightmapCoordinates(ctx.world(), blockPos));
             }
 
 
@@ -103,6 +114,7 @@ public class WorldRenderingCallbacks
 
             BufferRenderer.draw(BUFFER_BUILDER);
         }
+        MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager().disable();
 
         MatrixStack matrixStack2 = RenderSystem.getModelViewStack();
         matrixStack2.pop();
@@ -117,7 +129,7 @@ public class WorldRenderingCallbacks
         return true;
     }
 
-    private static void renderSprayPartVertical(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor) {
+    private void renderSprayPartVertical(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor) {
         float x1 = minX - x;
         float x2 = maxX - x;
         float y1 = (factor > 0 ? minY : maxY) - y + factor;
@@ -130,13 +142,13 @@ public class WorldRenderingCallbacks
         float v2 = -z2 / SCALE / RADIUS + OFFSET;
 
 
-        builder.vertex(matrixEntry.getPositionMatrix(), x1, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, u2).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-        builder.vertex(matrixEntry.getPositionMatrix(), x1, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, v2).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-        builder.vertex(matrixEntry.getPositionMatrix(), x2, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, v2).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-        builder.vertex(matrixEntry.getPositionMatrix(), x2, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, u2).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
+        builder.vertex(matrixEntry.getPositionMatrix(), x1, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, u2).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).next();
+        builder.vertex(matrixEntry.getPositionMatrix(), x1, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, v2).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).next();
+        builder.vertex(matrixEntry.getPositionMatrix(), x2, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, v2).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).next();
+        builder.vertex(matrixEntry.getPositionMatrix(), x2, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, u2).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).next();
     }
 
-    private static void renderSprayPartNorthSouth(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor) {
+    private void renderSprayPartNorthSouth(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor) {
         float x1 = minX - x;
         float x2 = maxX - x;
         float y1 = minY - y;
@@ -151,7 +163,7 @@ public class WorldRenderingCallbacks
         DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1, z1, x2, y2, z1, u1, v1, u2, v2);
     }
 
-    private static void renderSprayPartEastWest(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor) {
+    private void renderSprayPartEastWest(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor, int light) {
         float x1 = (factor > 0 ? minX : maxX) - x + factor;
         float y1 = minY - y;
         float y2 = maxY - y;
@@ -163,13 +175,16 @@ public class WorldRenderingCallbacks
         float u2 = -y1 / SCALE / RADIUS + OFFSET;
         float v2 = -y2 / SCALE / RADIUS + OFFSET;
 
-
         //String text, float x, float y, int color, boolean shadow, Matrix4f matrix, VertexConsumerProvider vertexConsumers, boolean seeThrough, int backgroundColor, int light
-        DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1, z1, x1, y2, z2, u1, v1, u2, v2);
+        DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), matrixEntry.getNormalMatrix(), x1, y1, z1, x1, y2, z2, u1, v1, u2, v2, light);
 
     }
 
-    private static void renderSprayPart(BufferBuilder builder, WorldView world, BlockPos pos, MatrixStack.Entry matrixEntry, Direction direction, Vec3f directionUnitVector, float x, float y, float z) {
+    private void renderSprayPart(BufferBuilder builder, WorldView world, BlockPos pos, MatrixStack.Entry matrixEntry, Direction direction, Vec3f directionUnitVector, float x, float y, float z) {
+        renderSprayPart(builder, world, pos, matrixEntry, direction, directionUnitVector, x, y, z, LightmapTextureManager.MAX_LIGHT_COORDINATE);
+    }
+
+    private void renderSprayPart(BufferBuilder builder, WorldView world, BlockPos pos, MatrixStack.Entry matrixEntry, Direction direction, Vec3f directionUnitVector, float x, float y, float z, int light) {
         BlockPos blockPos = pos.offset(direction.getOpposite());
         BlockState blockState = world.getBlockState(blockPos);
 
@@ -204,7 +219,7 @@ public class WorldRenderingCallbacks
             renderSprayPartNorthSouth(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getZ());
         }
         if (direction.getAxis() == Direction.Axis.X) {
-            renderSprayPartEastWest(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getX());
+            renderSprayPartEastWest(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getX(), light);
         }
 
 

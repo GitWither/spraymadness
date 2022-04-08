@@ -1,6 +1,8 @@
 package daniel.spraymadness.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import daniel.spraymadness.client.texture.SprayTexture;
+import daniel.spraymadness.client.util.SprayStorage;
 import daniel.spraymadness.client.util.gui.LabelledTextFieldWidget;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.gui.DrawableHelper;
@@ -16,6 +18,8 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
+import java.io.File;
+
 public class AddSprayScreen extends Screen {
     private static final Identifier BACKGROUND = new Identifier("textures/gui/demo_background.png");
 
@@ -27,11 +31,17 @@ public class AddSprayScreen extends Screen {
     private int x;
     private int y;
 
-    private BooleanConsumer callback;
+    private final BooleanConsumer callback;
+    private final SprayStorage storage;
 
-    protected AddSprayScreen(BooleanConsumer callback) {
+    private LabelledTextFieldWidget sprayTitle;
+    private LabelledTextFieldWidget sprayPath;
+    private CheckboxWidget emissive;
+
+    protected AddSprayScreen(BooleanConsumer callback, SprayStorage storage) {
         super(Text.of("Add Spray"));
         this.callback = callback;
+        this.storage = storage;
     }
 
     @Override
@@ -39,9 +49,13 @@ public class AddSprayScreen extends Screen {
         this.x = (this.width - BACKGROUND_WIDTH) / 2;
         this.y = (this.height - BACKGROUND_HEIGHT) / 2;
 
-        this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 55, 200, 20, new TranslatableText("addServer.enterName"), new LiteralText("Spray Name")));
-        this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 20, 179, 20, new TranslatableText("addServer.enterName"), new LiteralText("File")));
-        this.addDrawableChild(new CheckboxWidget(this.width / 2 - 100, this.height / 2 + 15, 20, 20, new TranslatableText(""), false, false));
+        sprayTitle = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 55, 200, 20, new TranslatableText("addServer.enterName"), new LiteralText("Spray Name")));
+        sprayTitle.setMaxLength(48);
+
+        sprayPath = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 20, 179, 20, new TranslatableText("addServer.enterName"), new LiteralText("File")));
+        sprayPath.setMaxLength(128);
+
+        emissive = this.addDrawableChild(new CheckboxWidget(this.width / 2 - 100, this.height / 2 + 15, 20, 20, new TranslatableText(""), false, false));
 
         this.addDrawableChild(new ButtonWidget(this.width / 2 + 81, this.height / 2 - 20, 20, 20, new LiteralText("..."), (button -> {
         })));
@@ -49,6 +63,10 @@ public class AddSprayScreen extends Screen {
             callback.accept(false);
         })));
         this.addDrawableChild(new ButtonWidget(this.width / 2 + 1, this.height / 2 + 55, 99, 20, new LiteralText("Add Spray"), (button -> {
+            File file = new File(sprayPath.getText());
+            if (file.exists()) {
+                this.storage.loadedTextures.add(new SprayTexture(new File(sprayPath.getText()), emissive.isChecked(), sprayTitle.getText()));
+            }
             callback.accept(true);
         })));
     }
@@ -66,7 +84,7 @@ public class AddSprayScreen extends Screen {
 
         super.render(matrices, mouseX, mouseY, delta);
 
-        this.textRenderer.draw(matrices, GLOWS_LABEL, this.width / 2 - 75, this.height / 2 + 21, 0);
+        this.textRenderer.draw(matrices, GLOWS_LABEL, this.width / 2f - 75, this.height / 2f + 21, 0);
 
     }
 }

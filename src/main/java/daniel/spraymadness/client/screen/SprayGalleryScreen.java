@@ -202,7 +202,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.toggleChildrenVisibility(false);
 
-        addSprayScreen = new AddSprayScreen(this::sprayAdded);
+        addSprayScreen = new AddSprayScreen(this::sprayAdded, this.sprayStorage);
         addSprayScreen.init(client, client.getWindow().getScaledWidth(), client.getWindow().getScaledHeight());
         addingSpray = true;
     }
@@ -215,8 +215,12 @@ public class SprayGalleryScreen extends Screen {
     private void toggleChildrenVisibility(boolean visible) {
         for (Element child: this.children()) {
             if (child instanceof ClickableWidget widget) {
-                widget.active = visible;
                 widget.visible = visible;
+
+                if (child instanceof AddToWheelButtonWidget) {
+                    continue;
+                }
+                widget.active = visible;
             }
         }
     }
@@ -224,7 +228,9 @@ public class SprayGalleryScreen extends Screen {
     @Override
     public void renderBackground(MatrixStack matrices) {
         super.renderBackground(matrices);
-        DrawHelper.drawOptionsGradient(top, bottom, 0, this.width, getScrollAmount());
+        if (client.world == null) {
+            DrawHelper.drawOptionsGradient(top, bottom, 0, this.width, getScrollAmount());
+        }
     }
 
     @Override

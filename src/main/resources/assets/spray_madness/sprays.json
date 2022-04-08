@@ -1,0 +1,9 @@
+{
+  "sprays": [
+    "minecraft:block/andesite",
+    {
+      "source": "minecraft:block/beacon",
+      "emissive": true
+    }
+  ]
+}

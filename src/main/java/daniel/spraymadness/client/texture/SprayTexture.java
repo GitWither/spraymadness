@@ -20,7 +20,8 @@ public class SprayTexture extends AbstractTexture {
     private NativeImage texture;
     private Identifier identifier;
     private String path;
-    private boolean emissive;
+    private String title;
+    private final boolean emissive;
 
     public SprayTexture(File source, boolean emissive) {
         this.emissive = emissive;
@@ -31,15 +32,18 @@ public class SprayTexture extends AbstractTexture {
             texture = NativeImage.read(inputStream);
             path = source.getPath();
 
-            this.identifier = new Identifier(SprayMadness.MOD_ID, Util.replaceInvalidChars(source.getName(), Identifier::isPathCharacterValid));
+            String id = Util.replaceInvalidChars(source.getName(), Identifier::isPathCharacterValid);
+
+            this.identifier = new Identifier(SprayMadness.MOD_ID, id);
+            this.title = StringUtils.capitalize(id);
 
             if (!RenderSystem.isOnRenderThread()) {
                 RenderSystem.recordRenderCall(() -> {
-                    TextureUtil.prepareImage(this.getGlId(), this.getWidth(), this.getHeight());
+                    TextureUtil.prepareImage(this.getGlId(), texture.getWidth(), texture.getHeight());
                     this.upload();
                 });
             } else {
-                TextureUtil.prepareImage(this.getGlId(), this.getWidth(), this.getHeight());
+                TextureUtil.prepareImage(this.getGlId(), texture.getWidth(), texture.getHeight());
                 this.upload();
             }
 
@@ -47,6 +51,16 @@ public class SprayTexture extends AbstractTexture {
         } catch (IOException e) {
             SprayMadness.LOGGER.error("Couldn't load spray texture " + source.getPath());
         }
+    }
+
+    public SprayTexture(File source, boolean emissive, String title) {
+        this(source, emissive);
+        this.title = title;
+    }
+
+    public SprayTexture(Identifier identifier, boolean emissive) {
+        this.identifier = identifier;
+        this.emissive = emissive;
     }
 
     public void upload() {
@@ -71,23 +85,15 @@ public class SprayTexture extends AbstractTexture {
         return texture;
     }
 
-    public int getWidth() {
-        return texture.getWidth();
-    }
-
-    public int getHeight() {
-        return texture.getHeight();
-    }
-
     public Identifier getIdentifier() {
         return this.identifier;
     }
 
     public String getTitle() {
-        return StringUtils.capitalize(this.identifier.getPath().replace(".png", ""));
+        return title;
     }
 
     public String getPath() {
-        return path;
+        return texture == null ? identifier.getPath() : path;
     }
 }

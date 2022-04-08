@@ -74,7 +74,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new ButtonWidget(
-                        (this.width - 450) / 2,
+                        15,
                         this.titleY,
                         20, 20,
                         new LiteralText("X"),

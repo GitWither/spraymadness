@@ -190,6 +190,7 @@ public class SprayGalleryScreen extends Screen {
     private void deleteCurrentSpray(ButtonWidget button) {
         if (sprayStorage.loadedTextures.size() == 0) return;
 
+        sprayStorage.sprayWheelTextures.remove(sprayStorage.loadedTextures.get(currentSprayTextureIndex));
         sprayStorage.loadedTextures.remove(currentSprayTextureIndex);
 
         if (currentSprayTextureIndex > 0) {
@@ -255,7 +256,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.textRenderer.drawTrimmed(StringVisitable.styled("Spray Wheel", Style.EMPTY.withBold(true)), (this.width + 166) / 2, (this.height - 40) / 2, 35, Colors.WHITE);
 
-        DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(currentSprayCount > 0 ? (currentSprayTextureIndex + 1 + "/" + currentSprayCount) : "No sprays!"), this.width / 2 - GALLERY_OFFSET, this.height / 2 + 56, Colors.WHITE);
+        DrawableHelper.drawCenteredText(matrices, this.textRenderer, new TranslatableText(currentSprayCount > 0 ? (currentSprayTextureIndex + 1 + "/" + currentSprayCount) : "No sprays!"), this.width / 2 - GALLERY_OFFSET, this.height / 2 + 56, Colors.WHITE);
 
         if (currentSprayTextureIndex > -1 && currentSprayTextureIndex < currentSprayCount) {
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
@@ -392,7 +393,7 @@ public class SprayGalleryScreen extends Screen {
                 }
 
                 NbtList sprayTextures = sprays.getList("spray_textures", NbtElement.COMPOUND_TYPE);
-                NbtList sprayWheelTextures = sprays.getList("spray_wheel", NbtElement.INT_TYPE);
+                NbtList sprayWheelTextures = sprays.getList("spray_wheel", NbtElement.COMPOUND_TYPE);
 
                 sprayTextures.clear();
                 sprayWheelTextures.clear();
@@ -400,13 +401,16 @@ public class SprayGalleryScreen extends Screen {
                 for (SprayTexture spray : sprayStorage.loadedTextures) {
                     NbtCompound sprayNbt = new NbtCompound();
 
-                    sprayNbt.put("source", NbtString.of(spray.getPath()));
+                    sprayNbt.put("source", NbtString.of(spray.isFromPack() ? spray.getIdentifier().toString() : spray.getPath()));
                     sprayNbt.put("emissive", NbtByte.of(spray.isEmissive()));
+                    sprayNbt.put("from_pack", NbtByte.of(spray.isFromPack()));
 
                     sprayTextures.add(sprayNbt);
 
+                    //Check if current spray texture is on the spray wheel, if so, retrieve its index in the list of all loaded textures, and save it as an int in NBT
                     if (sprayStorage.sprayWheelTextures.contains(spray)) {
-                        sprayWheelTextures.add(NbtInt.of(sprayStorage.loadedTextures.indexOf(spray)));
+                        int index = sprayStorage.loadedTextures.indexOf(spray);
+                        sprayWheelTextures.add(NbtInt.of(index));
                     }
                 }
 

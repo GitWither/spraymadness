@@ -60,7 +60,7 @@ public class SprayMadness implements ClientModInitializer {
         storage = SprayStorage.getInstance();
         sprayIOManager = new SprayIOManager(storage);
 
-        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SprayReloadListener());
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SprayReloadListener(storage));
 
         SPRAY_WHEEL_KEYBIND = KeyBindingHelper.registerKeyBinding(new KeyBinding(
            "key.spray_madness.spray_wheel",

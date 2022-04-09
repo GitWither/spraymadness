@@ -17,8 +17,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 public class SprayReloadListener implements SimpleSynchronousResourceReloadListener {
-    public SprayReloadListener() {
-
+    private SprayStorage storage;
+    public SprayReloadListener(SprayStorage storage) {
+        this.storage = storage;
     }
 
     @Override
@@ -28,6 +29,7 @@ public class SprayReloadListener implements SimpleSynchronousResourceReloadListe
 
     @Override
     public void reload(ResourceManager manager) {
+        storage.loadedTextures.removeIf(SprayTexture::isFromPack);
 
         for (Identifier identifier : manager.findResources("", path -> path.equals("sprays.json"))) {
             try (InputStream stream = manager.getResource(identifier).getInputStream()) {
@@ -42,18 +44,34 @@ public class SprayReloadListener implements SimpleSynchronousResourceReloadListe
                     //if (!(element instanceof JsonObject object)) continue;
 
                     if (JsonHelper.isString(element)) {
-                        System.out.println(element);
+                        Identifier id = Identifier.tryParse(element.getAsString());
+                        if (id == null) continue;
+
+                        storage.loadedTextures.add(new SprayTexture(id, false, id.getPath()));
                         continue;
-                        //storage.loadedTextures.add(new SprayTexture(Identifier.tryParse(element.getAsString()), false));
                     }
+
                     JsonObject spray = element.getAsJsonObject();
-                    System.out.println(spray.get("source"));
-                    //if (JsonHelper.hasString(object, "source") && JsonHelper.hasBoolean(object, "emissive")) {
-                        //storage.loadedTextures.add(new SprayTexture(
-                                //Identifier.tryParse(JsonHelper.getString(object, "source")),
-                                //JsonHelper.getBoolean(object, "emissive"))
-                        //);
-                    //}
+
+                    if (!spray.has("source")) continue;
+
+                    Identifier id = Identifier.tryParse(spray.get("source").getAsString());
+                    if (id == null) continue;
+                    if (storage.loadedTextures.stream().anyMatch(sprayTexture -> sprayTexture.getIdentifier() == id)) continue;
+
+                    boolean emissive = false;
+                    if (spray.has("emissive")) {
+                        emissive = spray.get("emissive").getAsBoolean();
+                    }
+
+                    String title = id.getPath();
+                    if (spray.has("title")) {
+                        title = spray.get("title").getAsString();
+                    }
+
+                    SprayTexture texture = new SprayTexture(id, emissive, title);
+
+                    storage.loadedTextures.add(texture);
                 }
                 //System.out.println(json.getAsJsonArray().get(0));
             } catch (IOException e) {

@@ -22,9 +22,11 @@ public class SprayTexture extends AbstractTexture {
     private String path;
     private String title;
     private final boolean emissive;
+    private final boolean fromPack;
 
     public SprayTexture(File source, boolean emissive) {
         this.emissive = emissive;
+        this.fromPack = false;
         try {
             if (!source.exists()) return;
 
@@ -48,6 +50,8 @@ public class SprayTexture extends AbstractTexture {
             }
 
             MinecraftClient.getInstance().getTextureManager().registerTexture(this.identifier, this);
+
+            inputStream.close();
         } catch (IOException e) {
             SprayMadness.LOGGER.error("Couldn't load spray texture " + source.getPath());
         }
@@ -58,9 +62,11 @@ public class SprayTexture extends AbstractTexture {
         this.title = title;
     }
 
-    public SprayTexture(Identifier identifier, boolean emissive) {
+    public SprayTexture(Identifier identifier, boolean emissive, String title) {
         this.identifier = identifier;
         this.emissive = emissive;
+        this.fromPack = true;
+        this.title = title;
     }
 
     public void upload() {
@@ -81,6 +87,7 @@ public class SprayTexture extends AbstractTexture {
         return emissive;
     }
 
+    //FIXME: Get rid of this
     public NativeImage getTexture() {
         return texture;
     }
@@ -91,6 +98,10 @@ public class SprayTexture extends AbstractTexture {
 
     public String getTitle() {
         return title;
+    }
+
+    public boolean isFromPack() {
+        return fromPack;
     }
 
     public String getPath() {

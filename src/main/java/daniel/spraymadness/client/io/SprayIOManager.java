@@ -64,9 +64,9 @@ public class SprayIOManager {
                             Identifier dimension = Identifier.tryParse(sprayCompound.getString("dimension"));
                             Identifier textureId = Identifier.tryParse(sprayCompound.getString("texture"));
 
-                            SprayTexture texture = (SprayTexture) client.getTextureManager().getOrDefault(textureId, MissingSprite.getMissingSpriteTexture());
+                            SprayTexture sprayTexture = storage.loadedTextures.stream().filter(texture -> texture.getIdentifier().equals(textureId)).findFirst().orElse(null);
 
-                            storage.totalWorldSprays.add(new Spray(texture, new Vec3f(x, y, z), face, dimension));
+                            storage.totalWorldSprays.add(new Spray(sprayTexture, new Vec3f(x, y, z), face, dimension));
                         }
                     }
                 }
@@ -142,28 +142,26 @@ public class SprayIOManager {
                             {
                                 String source = sprayCompound.getString("source");
                                 boolean emissive = sprayCompound.getBoolean("emissive");
+                                boolean fromPack = sprayCompound.getBoolean("from_pack");
 
-                                SprayTexture newSprayTexture = new SprayTexture(new File(source), emissive);
-                                if (newSprayTexture.getTexture() != null) {
-                                    storage.loadedTextures.add(newSprayTexture);
-                                }
+                                SprayTexture newSprayTexture = fromPack ?
+                                        new SprayTexture(Identifier.tryParse(source), emissive, source) :
+                                        new SprayTexture(new File(source), emissive);
+                                storage.loadedTextures.add(newSprayTexture);
                             }
                         }
                     }
 
                     NbtList sprayWheelList = sprays.getList("spray_wheel", NbtElement.INT_TYPE);
-
-
                     for (NbtElement sprayIndex : sprayWheelList) {
                         if (storage.loadedTextures.size() == 0) break;
                         if (sprayIndex instanceof NbtInt spray) {
-                            if (storage.loadedTextures.size() <= spray.intValue()) continue;
+                            int value = spray.intValue();
 
-                            storage.sprayWheelTextures.add(storage.loadedTextures.get(spray.intValue()));
+                            if (storage.loadedTextures.size() <= value) continue;
+                            storage.sprayWheelTextures.add(storage.loadedTextures.get(value));
                         }
                     }
-
-                    SprayMadness.LOGGER.info(sprays.getSize());
                 }
             }
             else {

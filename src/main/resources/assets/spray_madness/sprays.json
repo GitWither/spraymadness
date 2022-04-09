@@ -1,9 +1,9 @@
 {
   "sprays": [
-    "minecraft:block/andesite",
+    "minecraft:textures/block/andesite.png",
     {
-      "source": "minecraft:block/beacon",
-      "emissive": true
+      "source": "minecraft:textures/block/beacon.png",
+      "title": "hello"
     }
   ]
 }

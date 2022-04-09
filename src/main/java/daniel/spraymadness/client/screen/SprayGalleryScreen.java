@@ -415,6 +415,7 @@ public class SprayGalleryScreen extends Screen {
                     sprayNbt.put("source", NbtString.of(spray.isFromPack() ? spray.getIdentifier().toString() : spray.getPath()));
                     sprayNbt.put("emissive", NbtByte.of(spray.isEmissive()));
                     sprayNbt.put("from_pack", NbtByte.of(spray.isFromPack()));
+                    sprayNbt.put("title", NbtString.of(spray.getTitle()));
 
                     sprayTextures.add(sprayNbt);
 

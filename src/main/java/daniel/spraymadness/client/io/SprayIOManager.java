@@ -143,10 +143,11 @@ public class SprayIOManager {
                                 String source = sprayCompound.getString("source");
                                 boolean emissive = sprayCompound.getBoolean("emissive");
                                 boolean fromPack = sprayCompound.getBoolean("from_pack");
+                                String title = sprayCompound.getString("title");
 
                                 SprayTexture newSprayTexture = fromPack ?
-                                        new SprayTexture(Identifier.tryParse(source), emissive, source) :
-                                        new SprayTexture(new File(source), emissive);
+                                        new SprayTexture(Identifier.tryParse(source), emissive, title) :
+                                        new SprayTexture(new File(source), emissive, title);
                                 storage.loadedTextures.add(newSprayTexture);
                             }
                         }

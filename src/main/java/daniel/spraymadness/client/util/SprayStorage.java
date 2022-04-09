@@ -12,7 +12,6 @@ public class SprayStorage {
     public final List<Spray> totalWorldSprays = new ArrayList<>();
     public final List<SprayTexture> loadedTextures = new ArrayList<>();
     public final List<SprayTexture> sprayWheelTextures = new ArrayList<>(8);
-    public final List<Integer> sprayWheelPackTextures = new ArrayList<>(8);
 
     public static SprayStorage getInstance() {
         if (instance == null) {

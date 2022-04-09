@@ -7,9 +7,11 @@
   "gui.spray_madness.spray_gallery.add_spray.emissive": "Emissive",
   "gui.spray_madness.spray_gallery.delete_spray.tooltip": "Delete Spray",
   "gui.spray_madness.spray_gallery.spray_wheel.full": "Wheel Full",
+  "gui.spray_madness.spray_gallery.spray_wheel.empty": "No sprays",
   "gui.spray_madness.spray_gallery.spray_wheel.add": "Add",
   "gui.spray_madness.spray_gallery.spray_wheel.remove": "Remove",
   "gui.spray_madness.spray_gallery.spray_wheel.full.tooltip": "The spray wheel is currently full. Remove another spray to be able to add this one!",
+  "gui.spray_madness.spray_gallery.spray_wheel.empty.tooltip": "There are currently no sprays! Add one to add it to the spray wheel!",
   "gui.spray_madness.spray_gallery.spray_wheel.add.tooltip": "Add this spray to the spray wheel",
   "gui.spray_madness.spray_gallery.spray_wheel.remove.tooltip": "Remove this spray from the spray wheel",
   "gui.spray_madness.spray_gallery.back": "Back"

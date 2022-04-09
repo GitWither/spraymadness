@@ -64,9 +64,9 @@ public class SprayIOManager {
                             Identifier dimension = Identifier.tryParse(sprayCompound.getString("dimension"));
                             Identifier textureId = Identifier.tryParse(sprayCompound.getString("texture"));
 
-                            SprayTexture sprayTexture = storage.loadedTextures.stream().filter(texture -> texture.getIdentifier().equals(textureId)).findFirst().orElse(null);
-
-                            storage.totalWorldSprays.add(new Spray(sprayTexture, new Vec3f(x, y, z), face, dimension));
+                            storage.loadedTextures.stream().filter(texture -> texture.getIdentifier().equals(textureId)).findFirst().ifPresent(
+                                    sprayTexture -> storage.totalWorldSprays.add(new Spray(sprayTexture, new Vec3f(x, y, z), face, dimension))
+                            );
                         }
                     }
                 }

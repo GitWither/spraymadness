@@ -166,12 +166,7 @@ public class SprayIOManager {
                 }
             }
             else {
-                NbtCompound compound = new NbtCompound();
-                NbtList sprays = new NbtList();
-
-                compound.put("sprays", sprays);
-
-                NbtIo.write(compound, spraysFile);
+                NbtIo.write(new NbtCompound(), spraysFile);
             }
         }
         catch (IOException e) {

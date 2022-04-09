@@ -196,28 +196,28 @@ public class SprayRenderer
         }
 
 
-        Box box = voxelShape.getBoundingBox();
-
-        float minX = (float) (pos.getX() + box.minX);
-        float maxX = (float) (pos.getX() + box.maxX);
-        float minY = (float) (pos.getY() + box.minY);
-        float maxY = (float) (pos.getY() + box.maxY);
-        float minZ = (float) (pos.getZ() + box.minZ);
-        float maxZ = (float) (pos.getZ() + box.maxZ);
-
         //DrawHelper.drawDebugSprayRange(minX, minY, minZ, maxX, maxY, maxZ);
 
         //TODO: Make this work for stairs
 
-        if (direction.getAxis() == Direction.Axis.Y) {
-            renderSprayPartVertical(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getY(), light);
-        }
-        if (direction.getAxis() == Direction.Axis.Z) {
-            renderSprayPartNorthSouth(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getZ(), light);
-        }
-        if (direction.getAxis() == Direction.Axis.X) {
-            renderSprayPartEastWest(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getX(), light);
-        }
+        voxelShape.forEachBox((boxMinX, boxMinY, boxMinZ, boxMaxX, boxMaxY, boxMaxZ) -> {
+            float minX  = (float) (pos.getX() + boxMinX);
+            float maxX = (float) (pos.getX() + boxMaxX);
+            float minY = (float) (pos.getY() + boxMinY);
+            float maxY = (float) (pos.getY() + boxMaxY);
+            float minZ = (float) (pos.getZ() + boxMinZ);
+            float maxZ = (float) (pos.getZ() + boxMaxZ);
+
+            if (direction.getAxis() == Direction.Axis.Y) {
+                renderSprayPartVertical(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getY(), light);
+            }
+            if (direction.getAxis() == Direction.Axis.Z) {
+                renderSprayPartNorthSouth(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getZ(), light);
+            }
+            if (direction.getAxis() == Direction.Axis.X) {
+                renderSprayPartEastWest(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getX(), light);
+            }
+        });
 
 
         /*

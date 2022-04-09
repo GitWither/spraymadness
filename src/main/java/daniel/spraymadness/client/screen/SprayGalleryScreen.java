@@ -259,6 +259,8 @@ public class SprayGalleryScreen extends Screen {
         //TODO: Translate this
         DrawableHelper.drawCenteredText(matrices, this.textRenderer, new TranslatableText(currentSprayCount > 0 ? (currentSprayTextureIndex + 1 + "/" + currentSprayCount) : "No sprays!"), this.width / 2 - GALLERY_OFFSET, this.height - 68, Colors.WHITE);
 
+        renderSprayWheel(matrices);
+        
         if (currentSprayTextureIndex > -1 && currentSprayTextureIndex < currentSprayCount) {
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
             SprayTexture texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex);
@@ -295,7 +297,16 @@ public class SprayGalleryScreen extends Screen {
 
         }
 
+        if (addingSpray) {
+            matrices.push();
+            matrices.translate(0, 0, 1);
+            addSprayScreen.render(matrices, mouseX, mouseY, delta);
+            matrices.pop();
+        }
 
+    }
+
+    private void renderSprayWheel(MatrixStack matrices) {
         matrices.push();
         matrices.translate((this.width - 101) / 2f + GALLERY_OFFSET, (this.height - 123) / 2f, 0);
         int x = 0;
@@ -322,14 +333,6 @@ public class SprayGalleryScreen extends Screen {
             }
         }
         matrices.pop();
-
-        if (addingSpray) {
-            matrices.push();
-            matrices.translate(0, 0, 1);
-            addSprayScreen.render(matrices, mouseX, mouseY, delta);
-            matrices.pop();
-        }
-
     }
 
     @Override

@@ -89,7 +89,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new ButtonWidget(
-                        this.width / 2 - 10 + 50 - GALLERY_OFFSET, this.height / 2 + 50,
+                        this.width / 2 - 10 + 50 - GALLERY_OFFSET, this.height - 75,
                         20, 20,
                         new LiteralText(">"),
                         button -> {
@@ -104,7 +104,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new ButtonWidget(
-                        this.width / 2 - 10 - 50 - GALLERY_OFFSET, this.height / 2 + 50,
+                        this.width / 2 - 10 - 50 - GALLERY_OFFSET, this.height - 75,
                         20, 20,
                         new LiteralText("<"),
                         button -> {
@@ -119,7 +119,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new TexturedButtonWidget(
-                        this.width / 2 - 10 - 50 - GALLERY_OFFSET, this.height / 4 + 135,
+                        this.width / 2 - 10 - 50 - GALLERY_OFFSET, this.height - 52,
                         20, 20,
                         0, 0, 20,
                         WIDGETS,
@@ -132,7 +132,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new TexturedButtonWidget(
-                        this.width / 2 - 10 + 50 - GALLERY_OFFSET, this.height / 4 + 135,
+                        this.width / 2 - 10 + 50 - GALLERY_OFFSET, this.height - 52,
                         20, 20,
                         40, 0, 20,
                         WIDGETS,
@@ -144,7 +144,7 @@ public class SprayGalleryScreen extends Screen {
         );
 
         addToWheelButton = this.addDrawableChild(
-                new AddToWheelButtonWidget(this.width / 2 - GALLERY_OFFSET - 30, this.height / 4 + 135, 60, 20, new TranslatableText("add_to_wheel"), button -> {
+                new AddToWheelButtonWidget(this.width / 2 - GALLERY_OFFSET - 30, this.height - 52, 60, 20, new TranslatableText("add_to_wheel"), button -> {
                     SprayTexture texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex);
 
                     if (sprayStorage.sprayWheelTextures.size() > 7) {
@@ -244,7 +244,7 @@ public class SprayGalleryScreen extends Screen {
         DrawableHelper.fill(matrices, this.width / 2, this.top, this.width / 2 + 1, this.bottom, test);
 
         DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, TITLE, this.titleX, this.titleY, Colors.WHITE);
-        DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, TIP_LABEL.asOrderedText(), this.titleX, (this.height + 215) / 2, Colors.WHITE);
+        DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, TIP_LABEL.asOrderedText(), this.titleX, this.height - 20, Colors.WHITE);
 
         int currentSprayCount = sprayStorage.loadedTextures.size();
 
@@ -256,7 +256,8 @@ public class SprayGalleryScreen extends Screen {
 
         this.textRenderer.drawTrimmed(StringVisitable.styled("Spray Wheel", Style.EMPTY.withBold(true)), (this.width + 166) / 2, (this.height - 40) / 2, 35, Colors.WHITE);
 
-        DrawableHelper.drawCenteredText(matrices, this.textRenderer, new TranslatableText(currentSprayCount > 0 ? (currentSprayTextureIndex + 1 + "/" + currentSprayCount) : "No sprays!"), this.width / 2 - GALLERY_OFFSET, this.height / 2 + 56, Colors.WHITE);
+        //TODO: Translate this
+        DrawableHelper.drawCenteredText(matrices, this.textRenderer, new TranslatableText(currentSprayCount > 0 ? (currentSprayTextureIndex + 1 + "/" + currentSprayCount) : "No sprays!"), this.width / 2 - GALLERY_OFFSET, this.height - 68, Colors.WHITE);
 
         if (currentSprayTextureIndex > -1 && currentSprayTextureIndex < currentSprayCount) {
             RenderSystem.setShader(GameRenderer::getPositionColorShader);

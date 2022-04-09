@@ -8,11 +8,15 @@ import daniel.spraymadness.client.util.SprayStorage;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.render.Shader;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.nbt.*;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.Direction;
@@ -23,7 +27,7 @@ import java.io.IOException;
 
 public class SprayIOManager {
     private String currentWorldKey;
-    private SprayStorage storage;
+    private final SprayStorage storage;
 
     public SprayIOManager(SprayStorage storage) {
         this.storage = storage;
@@ -32,9 +36,22 @@ public class SprayIOManager {
     private static String getWorldKey(ClientPlayNetworkHandler handler, MinecraftClient client) {
         IntegratedServer server = client.getServer();
         if (server != null) {
-            return server.getSavePath(WorldSavePath.ROOT).normalize().getFileName().toString();
+            return "SP_" + server.getSaveProperties().getLevelName();
         }
-        return handler.getConnection().getAddress().toString();
+
+        ServerInfo dedicatedServerInfo = client.getCurrentServerEntry();
+        if (dedicatedServerInfo != null) {
+            if (!I18n.translate("selectServer.defaultName").equals(dedicatedServerInfo.name)) {
+                return "SERVER_" + dedicatedServerInfo.name;
+            }
+            if (client.isConnectedToRealms()) {
+                return "REALM_" + dedicatedServerInfo.name;
+            }
+
+            return "SERVER_" + handler.getConnection().getAddress().toString();
+        }
+
+        return "unknown";
     }
 
     public void loadSprays(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {

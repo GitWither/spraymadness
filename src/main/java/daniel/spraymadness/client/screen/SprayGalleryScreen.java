@@ -89,7 +89,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new ButtonWidget(
-                        this.width / 2 - 10 + 50 - GALLERY_OFFSET, this.height - 75,
+                        this.width / 2 + 40 - GALLERY_OFFSET, this.height - 75,
                         20, 20,
                         new LiteralText(">"),
                         button -> {
@@ -104,7 +104,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new ButtonWidget(
-                        this.width / 2 - 10 - 50 - GALLERY_OFFSET, this.height - 75,
+                        this.width / 2 - 60 - GALLERY_OFFSET, this.height - 75,
                         20, 20,
                         new LiteralText("<"),
                         button -> {
@@ -119,7 +119,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new TexturedButtonWidget(
-                        this.width / 2 - 10 - 50 - GALLERY_OFFSET, this.height - 52,
+                        this.width / 2 - 60 - GALLERY_OFFSET, this.height - 52,
                         20, 20,
                         0, 0, 20,
                         WIDGETS,
@@ -132,7 +132,7 @@ public class SprayGalleryScreen extends Screen {
 
         this.addDrawableChild(
                 new TexturedButtonWidget(
-                        this.width / 2 - 10 + 50 - GALLERY_OFFSET, this.height - 52,
+                        this.width / 2 + 40 - GALLERY_OFFSET, this.height - 52,
                         20, 20,
                         40, 0, 20,
                         WIDGETS,

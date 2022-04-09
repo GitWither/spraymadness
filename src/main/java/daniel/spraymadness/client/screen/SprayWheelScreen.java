@@ -42,9 +42,6 @@ public class SprayWheelScreen extends Screen {
     private int titleX;
     private int titleY;
 
-    private double selectionOriginX;
-    private double selectionOriginY;
-
     private int selectedIndex = -1;
 
     private static final int BACKGROUND_TEXTURE_WIDTH = 170;
@@ -65,9 +62,6 @@ public class SprayWheelScreen extends Screen {
 
         this.titleX = (BACKGROUND_TEXTURE_WIDTH - this.textRenderer.getWidth(TITLE)) / 2 + this.x;
         this.titleY = this.y + 6;
-
-        this.selectionOriginX = this.x + BACKGROUND_TEXTURE_OFFSET;
-        this.selectionOriginY = this.y + BACKGROUND_TEXTURE_OFFSET;
 
         super.init();
     }
@@ -128,9 +122,7 @@ public class SprayWheelScreen extends Screen {
         RenderSystem.setShaderTexture(0, TEXTURE);
         this.drawTexture(matrices, this.x, this.y, 0, 0, BACKGROUND_TEXTURE_WIDTH, BACKGROUND_TEXTURE_HEIGHT);
         RenderSystem.disableBlend();
-
-
-        client.player.sendMessage(new LiteralText((this.width / 2f - (SPRAY_QUAD_WIDTH) / 2f) + " "), true);
+        
         matrices.push();
         matrices.translate((this.width / 2f - (SPRAY_QUAD_WIDTH) / 2f), this.y + 32, 0);
         {

@@ -79,7 +79,7 @@ public class SprayGalleryScreen extends Screen {
                         20, 20,
                         new LiteralText("X"),
                         button -> {
-                            this.onClose();
+                            this.close();
                         },
                         (button, matrices, mouseX, mouseY) -> {
                             SprayGalleryScreen.this.renderTooltip(matrices, new TranslatableText("gui.spray_madness.spray_gallery.back"), mouseX, mouseY);
@@ -391,7 +391,7 @@ public class SprayGalleryScreen extends Screen {
     }
 
     @Override
-    public void onClose() {
+    public void close() {
 
         try {
             File spraysFile = new File(client.runDirectory, "sprays.dat");
@@ -436,6 +436,6 @@ public class SprayGalleryScreen extends Screen {
             SprayMadness.LOGGER.error(e.getMessage());
         }
 
-        super.onClose();
+        super.close();
     }
 }

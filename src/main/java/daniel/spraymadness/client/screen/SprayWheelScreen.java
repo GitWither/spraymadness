@@ -73,7 +73,7 @@ public class SprayWheelScreen extends Screen {
     }
 
     @Override
-    public boolean isPauseScreen() {
+    public boolean shouldPause() {
         return false;
     }
 
@@ -110,7 +110,7 @@ public class SprayWheelScreen extends Screen {
                 }
             }
 
-            this.onClose();
+            this.close();
 
             return true;
         }

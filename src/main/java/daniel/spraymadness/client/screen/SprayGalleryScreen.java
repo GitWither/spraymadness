@@ -173,7 +173,10 @@ public class SprayGalleryScreen extends Screen {
     }
 
     private void updateAddToWheelButtonMessage() {
-        if (sprayStorage.loadedTextures.size() == 0) return;
+        if (sprayStorage.loadedTextures.size() == 0) {
+            addToWheelButton.setEmptyMessage();
+            return;
+        }
 
         SprayTexture texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex);
         if (sprayStorage.sprayWheelTextures.contains(texture)) {
@@ -196,6 +199,8 @@ public class SprayGalleryScreen extends Screen {
         if (currentSprayTextureIndex > 0) {
             currentSprayTextureIndex--;
         }
+
+        updateAddToWheelButtonMessage();
     }
 
     private void showSelectDialog(ButtonWidget buttonWidget) {
@@ -260,7 +265,7 @@ public class SprayGalleryScreen extends Screen {
         DrawableHelper.drawCenteredText(matrices, this.textRenderer, new TranslatableText(currentSprayCount > 0 ? (currentSprayTextureIndex + 1 + "/" + currentSprayCount) : "No sprays!"), this.width / 2 - GALLERY_OFFSET, this.height - 68, Colors.WHITE);
 
         renderSprayWheel(matrices);
-        
+
         if (currentSprayTextureIndex > -1 && currentSprayTextureIndex < currentSprayCount) {
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
             SprayTexture texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex);
@@ -344,6 +349,8 @@ public class SprayGalleryScreen extends Screen {
                 sprayStorage.loadedTextures.add(new SprayTexture(path.toFile(), false));
             }
         }
+
+        updateAddToWheelButtonMessage();
     }
 
     @Override

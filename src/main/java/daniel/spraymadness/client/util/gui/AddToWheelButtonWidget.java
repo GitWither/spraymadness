@@ -9,13 +9,16 @@ public class AddToWheelButtonWidget extends ButtonWidget {
     private static final TranslatableText REMOVE = new TranslatableText("gui.spray_madness.spray_gallery.spray_wheel.remove");
     private static final TranslatableText ADD = new TranslatableText("gui.spray_madness.spray_gallery.spray_wheel.add");
     private static final TranslatableText FULL = new TranslatableText("gui.spray_madness.spray_gallery.spray_wheel.full");
+    private static final TranslatableText EMPTY = new TranslatableText("gui.spray_madness.spray_gallery.spray_wheel.empty");
 
     private static final TranslatableText REMOVE_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.spray_wheel.remove.tooltip");
     private static final TranslatableText FULL_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.spray_wheel.full.tooltip");
     private static final TranslatableText ADD_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.spray_wheel.add.tooltip");
+    private static final TranslatableText EMPTY_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.spray_wheel.empty.tooltip");
 
     public AddToWheelButtonWidget(int x, int y, int width, int height, Text message, PressAction onPress, TooltipSupplier tooltipSupplier) {
         super(x, y, width, height, message, onPress, tooltipSupplier);
+        this.setEmptyMessage();
     }
 
     public void setRemove() {
@@ -31,8 +34,15 @@ public class AddToWheelButtonWidget extends ButtonWidget {
     }
 
     public void setAddMessage() {
+        this.active = true;
         this.state = State.ADD;
         this.setMessage(ADD);
+    }
+
+    public void setEmptyMessage() {
+        this.active = false;
+        this.state = State.EMPTY;
+        this.setMessage(EMPTY);
     }
 
     public TranslatableText getTooltipMessage() {
@@ -46,6 +56,9 @@ public class AddToWheelButtonWidget extends ButtonWidget {
             case ADD -> {
                 return ADD_TOOLTIP;
             }
+            case EMPTY -> {
+                return EMPTY_TOOLTIP;
+            }
         }
         return ADD_TOOLTIP;
     }
@@ -53,6 +66,7 @@ public class AddToWheelButtonWidget extends ButtonWidget {
     private enum State {
         FULL,
         REMOVE,
-        ADD
+        ADD,
+        EMPTY
     }
 }

@@ -38,7 +38,7 @@ public class SprayRenderer
 {
     private final SprayStorage storage;
     private final Shader sprayShader;
-    private static final BufferBuilder BUFFER_BUILDER = new BufferBuilder(256);
+    private final BufferBuilder bufferBuilder;
     private static final float RADIUS = 0.5f;
     private static final float SCALE = 2.0f;
     private static final float OFFSET = 0.5f;
@@ -46,6 +46,7 @@ public class SprayRenderer
     public SprayRenderer(SprayStorage storage, Shader sprayShader) {
         this.storage = storage;
         this.sprayShader = sprayShader;
+        this.bufferBuilder = new BufferBuilder(256);
     }
 
     private Shader getSprayShader() {
@@ -75,7 +76,7 @@ public class SprayRenderer
         for (Spray spray : storage.totalWorldSprays) {
             if (!spray.getDimension().equals(dimensionId)) continue;
 
-            BUFFER_BUILDER.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
+            this.bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE_LIGHT);
             RenderSystem.setShaderTexture(0, spray.getTextureIdentifier());
 
             ctx.matrixStack().push();
@@ -104,16 +105,16 @@ public class SprayRenderer
                 if (!Block.shouldDrawSide(ctx.world().getBlockState(blockPos), ctx.world(), blockPos, spray.getFace(), blockPos)) continue;
 
                 int light = spray.isEmissive() ? LightmapTextureManager.MAX_LIGHT_COORDINATE : WorldRenderer.getLightmapCoordinates(ctx.world(), blockPos);
-                renderSprayPart(BUFFER_BUILDER, ctx.world(), blockPos, entry, spray.getFace(), facingVector, sprayPos.getX(), sprayPos.getY(), sprayPos.getZ(), light);
+                renderSprayPart(this.bufferBuilder, ctx.world(), blockPos, entry, spray.getFace(), facingVector, sprayPos.getX(), sprayPos.getY(), sprayPos.getZ(), light);
             }
 
 
             ctx.matrixStack().pop();
-            BUFFER_BUILDER.end();
+            this.bufferBuilder.end();
 
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
-            BufferRenderer.draw(BUFFER_BUILDER);
+            BufferRenderer.draw(this.bufferBuilder);
         }
         MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager().disable();
 
@@ -195,11 +196,6 @@ public class SprayRenderer
             return;
         }
 
-
-        //DrawHelper.drawDebugSprayRange(minX, minY, minZ, maxX, maxY, maxZ);
-
-        //TODO: Make this work for stairs
-
         voxelShape.forEachBox((boxMinX, boxMinY, boxMinZ, boxMaxX, boxMaxY, boxMaxZ) -> {
             float minX  = (float) (pos.getX() + boxMinX);
             float maxX = (float) (pos.getX() + boxMaxX);
@@ -218,55 +214,6 @@ public class SprayRenderer
                 renderSprayPartEastWest(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getX(), light);
             }
         });
-
-
-        /*
-        if (blockState.getBlock() instanceof StairsBlock && blockState.get(StairsBlock.SHAPE) == StairShape.STRAIGHT) {
-
-            //System.out.println(blockState.get(HorizontalFacingBlock.FACING).ordinal() + " : " + blockState.get(HorizontalFacingBlock.FACING).asString());
-            switch (blockState.get(HorizontalFacingBlock.FACING).ordinal()) {
-                //North
-                case 2 -> {
-                    z2 -= 0.5;
-                }
-                //South
-                case 3 -> {
-                    z1 += 0.5;
-                }
-                //West
-                case 4 -> {
-                    x2 -= 0.5;
-                }
-                //East
-                case 5 -> {
-                    x1 += 0.5;
-                }
-            }
-
-            o = -x1 / SCALE / RADIUS + OFFSET;
-            p = -x2 / SCALE / RADIUS + OFFSET;
-            q = -z1 / SCALE / RADIUS + OFFSET;
-            r = -z2 / SCALE / RADIUS + OFFSET;
-
-            DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1 - 0.5f, z1, x2, y1 - 0.5f, z2, o, p, q - 0.5f, r - 0.5f);
-            //builder.vertex(matrixEntry.getPositionMatrix(), x1, y1 - 0.5f, z1 + 0.5f).color(1.0f, 1.0f, 1.0f, 1.0f).texture(o, q - 0.5f).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-            //builder.vertex(matrixEntry.getPositionMatrix(), x1, y1 - 0.5f, z2 + 0.5f).color(1.0f, 1.0f, 1.0f, 1.0f).texture(o, r - 0.5f).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-            //builder.vertex(matrixEntry.getPositionMatrix(), x2, y1 - 0.5f, z2 + 0.5f).color(1.0f, 1.0f, 1.0f, 1.0f).texture(p, r - 0.5f).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-            //builder.vertex(matrixEntry.getPositionMatrix(), x2, y1 - 0.5f, z1 + 0.5f).color(1.0f, 1.0f, 1.0f, 1.0f).texture(p, q - 0.5f).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-
-        }
-
-         */
-
-
-
-        //System.out.println(MinecraftClient.getInstance().getNetworkHandler().getConnection().getAddress());
-
-        //DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1, z1, x2, y1, z2, o, p, q, r);
-       // builder.vertex(matrixEntry.getPositionMatrix(), x1, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(o, q).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-        //builder.vertex(matrixEntry.getPositionMatrix(), x1, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(o, r).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-        //builder.vertex(matrixEntry.getPositionMatrix(), x2, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(p, r).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
-        //builder.vertex(matrixEntry.getPositionMatrix(), x2, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(p, q).overlay(OverlayTexture.DEFAULT_UV).light(LightmapTextureManager.MAX_LIGHT_COORDINATE).normal( 0, 1.0f, 0).next();
     }
 
 }

@@ -143,11 +143,7 @@ public class SprayRenderer
         float u2 = -z1 / SCALE / RADIUS + OFFSET;
         float v2 = -z2 / SCALE / RADIUS + OFFSET;
 
-
-        builder.vertex(matrixEntry.getPositionMatrix(), x1, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, u2).light(light).next();
-        builder.vertex(matrixEntry.getPositionMatrix(), x1, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, v2).light(light).next();
-        builder.vertex(matrixEntry.getPositionMatrix(), x2, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, v2).light(light).next();
-        builder.vertex(matrixEntry.getPositionMatrix(), x2, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, u2).light(light).next();
+        DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1, z1, x2, y1, z2, u1, v1, u2, v2, light);
     }
 
     private void renderSprayPartNorthSouth(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor, int light) {
@@ -177,7 +173,6 @@ public class SprayRenderer
         float u2 = -y1 / SCALE / RADIUS + OFFSET;
         float v2 = -y2 / SCALE / RADIUS + OFFSET;
 
-        //String text, float x, float y, int color, boolean shadow, Matrix4f matrix, VertexConsumerProvider vertexConsumers, boolean seeThrough, int backgroundColor, int light
         DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1, z1, x1, y2, z2, u1, v1, u2, v2, light);
 
     }

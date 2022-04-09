@@ -103,10 +103,12 @@ public class DrawHelper {
 
 
     public static void drawSprayTextureQuad(BufferBuilder builder, Matrix4f position, float x1, float y1, float z1, float x2, float y2, float z2, float u1, float v1, float u2, float v2, int light) {
+        boolean vertical = y2 - y1 > 0;
+
         builder.vertex(position, x1, y1, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, u2).light(light).next();
-        builder.vertex(position, x1, y2, z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, v2).light(light).next();
+        builder.vertex(position, x1, y2, vertical ? z1 : z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(u1, v2).light(light).next();
         builder.vertex(position, x2, y2, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, v2).light(light).next();
-        builder.vertex(position, x2, y1, z2).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, u2).light(light).next();
+        builder.vertex(position, x2, y1, vertical ? z2 : z1).color(1.0f, 1.0f, 1.0f, 1.0f).texture(v1, u2).light(light).next();
     }
 
     public static void drawDebugSprayRange(float x1, float y1, float z1, float x2, float y2, float z2) {

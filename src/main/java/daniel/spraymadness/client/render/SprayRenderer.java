@@ -36,6 +36,7 @@ import static org.lwjgl.opengl.GL11C.*;
 
 public class SprayRenderer
 {
+    private final MinecraftClient client;
     private final SprayStorage storage;
     private final Shader sprayShader;
     private final BufferBuilder bufferBuilder;
@@ -43,9 +44,10 @@ public class SprayRenderer
     private static final float SCALE = 2.0f;
     private static final float OFFSET = 0.5f;
 
-    public SprayRenderer(SprayStorage storage, Shader sprayShader) {
+    public SprayRenderer(MinecraftClient client, SprayStorage storage, Shader sprayShader) {
         this.storage = storage;
         this.sprayShader = sprayShader;
+        this.client = client;
         this.bufferBuilder = new BufferBuilder(256);
     }
 
@@ -61,7 +63,7 @@ public class SprayRenderer
         RenderSystem.depthFunc(GL_LEQUAL);
         RenderSystem.disableCull();
 
-        MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager().enable();
+        this.client.gameRenderer.getLightmapTextureManager().enable();
         RenderSystem.setShader(this::getSprayShader);
 
         MatrixStack matrixStack = RenderSystem.getModelViewStack();
@@ -116,7 +118,7 @@ public class SprayRenderer
 
             BufferRenderer.draw(this.bufferBuilder);
         }
-        MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager().disable();
+        this.client.gameRenderer.getLightmapTextureManager().disable();
 
         MatrixStack matrixStack2 = RenderSystem.getModelViewStack();
         matrixStack2.pop();

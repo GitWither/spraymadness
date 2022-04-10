@@ -213,7 +213,10 @@ public class SprayGalleryScreen extends Screen {
         if (client == null) return;
 
         this.toggleChildrenVisibility(false);
+        this.showAddSprayScreen();
+    }
 
+    private void showAddSprayScreen() {
         addSprayScreen = new AddSprayScreen(this::sprayAdded, this.sprayStorage);
         addSprayScreen.init(client, client.getWindow().getScaledWidth(), client.getWindow().getScaledHeight());
         addingSpray = true;
@@ -350,9 +353,20 @@ public class SprayGalleryScreen extends Screen {
     public void filesDragged(List<Path> paths) {
         super.filesDragged(paths);
 
-        for (Path path : paths) {
-            if (FilenameUtils.isExtension(path.getFileName().toString(), "png", "jpg", "jpeg")) {
-                sprayStorage.loadedTextures.add(new SprayTexture(path.toFile(), false));
+        if (paths.size() == 1) {
+            Path path = paths.get(0);
+            if (path.toFile().exists()) {
+                this.showAddSprayScreen();
+                addSprayScreen.setPath(path.toString());
+            }
+        }
+        else {
+            for (Path path : paths) {
+                if (!path.toFile().exists()) continue;
+
+                if (FilenameUtils.isExtension(path.getFileName().toString(), "png", "jpg", "jpeg")) {
+                    sprayStorage.loadedTextures.add(new SprayTexture(path.toFile(), false, FilenameUtils.removeExtension(path.getFileName().toString())));
+                }
             }
         }
 

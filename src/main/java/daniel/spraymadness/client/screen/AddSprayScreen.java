@@ -38,6 +38,8 @@ public class AddSprayScreen extends Screen {
     private LabelledTextFieldWidget sprayPath;
     private CheckboxWidget emissive;
 
+    private String path;
+
     protected AddSprayScreen(BooleanConsumer callback, SprayStorage storage) {
         super(Text.of("Add Spray"));
         this.callback = callback;
@@ -52,13 +54,12 @@ public class AddSprayScreen extends Screen {
         sprayTitle = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 55, 200, 20, new TranslatableText("addServer.enterName"), new LiteralText("Spray Name")));
         sprayTitle.setMaxLength(48);
 
-        sprayPath = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 20, 179, 20, new TranslatableText("addServer.enterName"), new LiteralText("File")));
+        sprayPath = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 20, 200, 20, new TranslatableText("addServer.enterName"), new LiteralText("File")));
         sprayPath.setMaxLength(128);
+        sprayPath.setText(path);
 
         emissive = this.addDrawableChild(new CheckboxWidget(this.width / 2 - 100, this.height / 2 + 15, 20, 20, new TranslatableText(""), false, false));
 
-        this.addDrawableChild(new ButtonWidget(this.width / 2 + 81, this.height / 2 - 20, 20, 20, new LiteralText("..."), (button -> {
-        })));
         this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height / 2 + 55, 99, 20, new LiteralText("Cancel"), (button -> {
             callback.accept(false);
         })));
@@ -69,6 +70,11 @@ public class AddSprayScreen extends Screen {
             }
             callback.accept(true);
         })));
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+        this.sprayPath.setText(path);
     }
 
 

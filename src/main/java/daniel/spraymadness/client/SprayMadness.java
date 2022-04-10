@@ -137,7 +137,7 @@ public class SprayMadness implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             sprayIOManager.loadSprayTextures(client);
             sprayShader = sprayIOManager.loadSprayShader(client);
-            sprayRenderer = new SprayRenderer(storage, sprayShader);
+            sprayRenderer = new SprayRenderer(client, storage, sprayShader);
 
 
             WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register(sprayRenderer::renderSprays);

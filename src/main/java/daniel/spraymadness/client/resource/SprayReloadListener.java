@@ -43,9 +43,12 @@ public class SprayReloadListener implements SimpleSynchronousResourceReloadListe
                 for (JsonElement element : sprays) {
                     //if (!(element instanceof JsonObject object)) continue;
 
+                    Identifier id;
                     if (JsonHelper.isString(element)) {
-                        Identifier id = Identifier.tryParse(element.getAsString());
+                        id = Identifier.tryParse(element.getAsString());
                         if (id == null) continue;
+                        if (storage.removedPackTextures.stream().anyMatch(textureId -> textureId.equals(id))) continue;
+                        if (storage.loadedTextures.stream().anyMatch(sprayTexture -> sprayTexture.getIdentifier() == id)) continue;
 
                         storage.loadedTextures.add(new SprayTexture(id, false, id.getPath()));
                         continue;
@@ -55,8 +58,9 @@ public class SprayReloadListener implements SimpleSynchronousResourceReloadListe
 
                     if (!spray.has("source")) continue;
 
-                    Identifier id = Identifier.tryParse(spray.get("source").getAsString());
+                    id = Identifier.tryParse(spray.get("source").getAsString());
                     if (id == null) continue;
+                    if (storage.removedPackTextures.stream().anyMatch(textureId -> textureId.equals(id))) continue;
                     if (storage.loadedTextures.stream().anyMatch(sprayTexture -> sprayTexture.getIdentifier() == id)) continue;
 
                     boolean emissive = false;

@@ -122,7 +122,7 @@ public class SprayWheelScreen extends Screen {
         RenderSystem.setShaderTexture(0, TEXTURE);
         this.drawTexture(matrices, this.x, this.y, 0, 0, BACKGROUND_TEXTURE_WIDTH, BACKGROUND_TEXTURE_HEIGHT);
         RenderSystem.disableBlend();
-        
+
         matrices.push();
         matrices.translate((this.width / 2f - (SPRAY_QUAD_WIDTH) / 2f), this.y + 32, 0);
         {

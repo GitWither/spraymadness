@@ -193,7 +193,13 @@ public class SprayGalleryScreen extends Screen {
     private void deleteCurrentSpray(ButtonWidget button) {
         if (sprayStorage.loadedTextures.size() == 0) return;
 
-        sprayStorage.sprayWheelTextures.remove(sprayStorage.loadedTextures.get(currentSprayTextureIndex));
+        SprayTexture texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex);
+
+        if (texture.isFromPack()) {
+            sprayStorage.removedPackTextures.add(texture.getIdentifier());
+        }
+
+        sprayStorage.sprayWheelTextures.remove(texture);
         sprayStorage.loadedTextures.remove(currentSprayTextureIndex);
 
         if (currentSprayTextureIndex > 0) {
@@ -405,11 +411,15 @@ public class SprayGalleryScreen extends Screen {
 
                 NbtList sprayTextures = sprays.getList("spray_textures", NbtElement.COMPOUND_TYPE);
                 NbtList sprayWheelTextures = sprays.getList("spray_wheel", NbtElement.COMPOUND_TYPE);
+                NbtList removedPackTextures = sprays.getList("removed_pack_textures", NbtElement.STRING_TYPE);
 
                 sprayTextures.clear();
                 sprayWheelTextures.clear();
+                removedPackTextures.clear();
 
                 for (SprayTexture spray : sprayStorage.loadedTextures) {
+                    boolean isInWheel = sprayStorage.sprayWheelTextures.contains(spray);
+
                     NbtCompound sprayNbt = new NbtCompound();
 
                     sprayNbt.put("source", NbtString.of(spray.isFromPack() ? spray.getIdentifier().toString() : spray.getPath()));
@@ -417,17 +427,24 @@ public class SprayGalleryScreen extends Screen {
                     sprayNbt.put("from_pack", NbtByte.of(spray.isFromPack()));
                     sprayNbt.put("title", NbtString.of(spray.getTitle()));
 
+                    if (spray.isFromPack() && !isInWheel) continue;
+
                     sprayTextures.add(sprayNbt);
 
                     //Check if current spray texture is on the spray wheel, if so, retrieve its index in the list of all loaded textures, and save it as an int in NBT
-                    if (sprayStorage.sprayWheelTextures.contains(spray)) {
+                    if (isInWheel) {
                         int index = sprayStorage.loadedTextures.indexOf(spray);
                         sprayWheelTextures.add(NbtInt.of(index));
                     }
                 }
 
+                for (Identifier identifier : sprayStorage.removedPackTextures) {
+                    removedPackTextures.add(NbtString.of(identifier.toString()));
+                }
+
                 sprays.put("spray_textures", sprayTextures);
                 sprays.put("spray_wheel", sprayWheelTextures);
+                sprays.put("removed_pack_textures", removedPackTextures);
 
                 NbtIo.write(sprays, spraysFile);
             }

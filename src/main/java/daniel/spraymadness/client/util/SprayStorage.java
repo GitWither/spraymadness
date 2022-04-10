@@ -1,6 +1,7 @@
 package daniel.spraymadness.client.util;
 
 import daniel.spraymadness.client.texture.SprayTexture;
+import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ public class SprayStorage {
     public final List<Spray> totalWorldSprays = new LinkedList<>();
     public final List<SprayTexture> loadedTextures = new ArrayList<>();
     public final List<SprayTexture> sprayWheelTextures = new ArrayList<>(8);
+    public final List<Identifier> removedPackTextures = new ArrayList<>();
 
     public static SprayStorage getInstance() {
         if (instance == null) {

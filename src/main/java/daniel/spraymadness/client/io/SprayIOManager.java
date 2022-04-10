@@ -180,6 +180,15 @@ public class SprayIOManager {
                             storage.sprayWheelTextures.add(storage.loadedTextures.get(value));
                         }
                     }
+
+                    NbtList removedPackTextures = sprays.getList("removed_pack_textures", NbtElement.STRING_TYPE);
+                    for (NbtElement id : removedPackTextures) {
+                        Identifier identifier = Identifier.tryParse(id.asString());
+
+                        if (identifier != null) {
+                            storage.removedPackTextures.add(identifier);
+                        }
+                    }
                 }
             }
             else {

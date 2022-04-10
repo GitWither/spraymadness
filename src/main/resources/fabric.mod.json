@@ -7,8 +7,8 @@
   "authors": [],
   "contact": {},
   "license": "MIT",
-  "icon": "assets/spraymadness/icon.png",
-  "environment": "*",
+  "icon": "assets/spray_madness/icon.png",
+  "environment": "client",
   "entrypoints": {
     "client": [
       "daniel.spraymadness.client.SprayMadness"
@@ -18,8 +18,9 @@
     "spraymadness.mixins.json"
   ],
   "depends": {
+    "java": "17",
     "fabricloader": ">=0.12.12",
     "fabric": "*",
-    "minecraft": "1.18.*"
+    "minecraft": "1.18.2"
   }
 }

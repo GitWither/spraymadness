@@ -1,9 +1,9 @@
 {
   "sprays": [
-    "minecraft:textures/block/andesite.png",
     {
-      "source": "minecraft:textures/block/beacon.png",
-      "title": "hello"
+      "source": "spray_madness:textures/icon_transparent.png",
+      "emissive": false,
+      "title": "Spray Can"
     }
   ]
 }

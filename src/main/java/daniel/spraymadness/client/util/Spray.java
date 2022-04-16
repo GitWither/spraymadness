@@ -15,14 +15,26 @@ public class Spray {
     Vec3f pos;
     Direction face;
     Identifier dimension;
-
     SprayTexture texture;
+    int facing;
 
     public Spray(SprayTexture texture, Vec3f pos, Direction face, Identifier dimension) {
         this.texture = texture;
         this.pos = pos;
         this.face = face;
         this.dimension = dimension;
+    }
+
+    public Spray(SprayTexture texture, Vec3f pos, Direction face, Identifier dimension, int facing) {
+        this.texture = texture;
+        this.pos = pos;
+        this.face = face;
+        this.dimension = dimension;
+        this.facing = facing;
+    }
+
+    public int getFacing() {
+        return facing;
     }
 
     public Direction getFace() {

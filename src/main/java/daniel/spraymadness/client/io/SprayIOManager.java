@@ -78,11 +78,22 @@ public class SprayIOManager {
 
                             Direction face = Direction.byId(sprayCompound.getInt("face_id"));
 
+                            int facing = sprayCompound.getInt("facing");
+
                             Identifier dimension = Identifier.tryParse(sprayCompound.getString("dimension"));
                             Identifier textureId = Identifier.tryParse(sprayCompound.getString("texture"));
 
                             storage.loadedTextures.stream().filter(texture -> texture.getIdentifier().equals(textureId)).findFirst().ifPresent(
-                                    sprayTexture -> storage.totalWorldSprays.add(new Spray(sprayTexture, new Vec3f(x, y, z), face, dimension))
+                                    sprayTexture -> {
+                                        Spray spray;
+                                        if (face.getAxis().isVertical()) {
+                                            spray = new Spray(sprayTexture, new Vec3f(x, y, z), face, dimension, facing);
+                                        }
+                                        else {
+                                            spray = new Spray(sprayTexture, new Vec3f(x, y, z), face, dimension);
+                                        }
+                                        storage.totalWorldSprays.add(spray);
+                                    }
                             );
                         }
                     }
@@ -124,6 +135,10 @@ public class SprayIOManager {
                     sprayNbt.put("face_id", NbtInt.of(spray.getFace().getId()));
                     sprayNbt.put("dimension", NbtString.of(spray.getDimension().toString()));
                     sprayNbt.put("texture", NbtString.of(spray.getTextureIdentifier().toString()));
+
+                    if (spray.getFace().getAxis().isVertical()) {
+                        sprayNbt.put("facing", NbtInt.of(spray.getFacing()));
+                    }
 
                     currentWorldSprays.add(sprayNbt);
                 }

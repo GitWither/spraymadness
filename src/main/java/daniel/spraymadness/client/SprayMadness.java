@@ -130,7 +130,8 @@ public class SprayMadness implements ClientModInitializer {
                                     storage.sprayWheelTextures.get(i),
                                     new Vec3f((float) hit.getPos().x, (float) hit.getPos().y, (float) hit.getPos().z),
                                     ((BlockHitResult) hit).getSide(),
-                                    client.player.world.getRegistryKey().getValue()
+                                    client.player.world.getRegistryKey().getValue(),
+                                    client.player.getHorizontalFacing().getHorizontal()
                             );
                             client.world.playSound(((BlockHitResult) hit).getBlockPos(), SprayMadness.ENTITY_PLAYER_SPRAY, SoundCategory.PLAYERS, 5, 1, true);
                             storage.totalWorldSprays.add(spray);

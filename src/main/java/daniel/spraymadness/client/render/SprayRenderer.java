@@ -107,7 +107,9 @@ public class SprayRenderer
                 if (!Block.shouldDrawSide(ctx.world().getBlockState(blockPos), ctx.world(), blockPos, spray.getFace(), blockPos)) continue;
 
                 int light = spray.isEmissive() ? LightmapTextureManager.MAX_LIGHT_COORDINATE : WorldRenderer.getLightmapCoordinates(ctx.world(), blockPos);
-                renderSprayPart(this.bufferBuilder, ctx.world(), blockPos, entry, spray.getFace(), facingVector, sprayPos.getX(), sprayPos.getY(), sprayPos.getZ(), light);
+
+                //could probably pass the spray directly at this point but ¯\_(ツ)_/¯
+                renderSprayPart(this.bufferBuilder, ctx.world(), blockPos, entry, spray.getFace(), facingVector, sprayPos.getX(), sprayPos.getY(), sprayPos.getZ(), light, spray.getFacing());
             }
 
 
@@ -133,19 +135,41 @@ public class SprayRenderer
         return true;
     }
 
-    private void renderSprayPartVertical(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor, int light) {
+    private void renderSprayPartVertical(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor, int light, int facing) {
         float x1 = minX - x;
         float x2 = maxX - x;
         float y1 = (factor > 0 ? minY : maxY) - y + factor;
         float z1 = minZ - z;
         float z2 = maxZ - z;
 
-        float u1 = -x1 / SCALE / RADIUS + OFFSET;
-        float v1 = -x2 / SCALE / RADIUS + OFFSET;
-        float u2 = -z1 / SCALE / RADIUS + OFFSET;
-        float v2 = -z2 / SCALE / RADIUS + OFFSET;
+        float deltaX = x2 - x1;
+        float deltaZ = z2 - z1;
 
-        DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1, z1, x2, y1, z2, u1, v1, u2, v2, light);
+        Direction dir = Direction.fromHorizontal(facing);
+        Vec3f unit = dir.getUnitVector();
+
+
+        if (dir.getAxis() == Direction.Axis.Z) {
+            float factorZ = unit.getZ();
+
+            float u1 = factorZ * -x1 / SCALE / RADIUS + OFFSET;
+            float v1 = factorZ * -x2 / SCALE / RADIUS + OFFSET;
+            float u2 = factorZ * -z1 / SCALE / RADIUS + OFFSET;
+            float v2 = factorZ * -z2 / SCALE / RADIUS + OFFSET;
+
+            DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1, z1, x2, y1, z2, u1, v1, u2, v2, light, false);
+        }
+        else {
+            float factorX = unit.getX();
+
+            float u1 = factorX * z1 / SCALE / RADIUS + OFFSET;
+            float v1 = factorX * z2 / SCALE / RADIUS + OFFSET;
+            float u2 = factorX * -x2 / SCALE / RADIUS + OFFSET;
+            float v2 = factorX * -x1 / SCALE / RADIUS + OFFSET;
+
+            DrawHelper.drawSprayTextureQuad(builder, matrixEntry.getPositionMatrix(), x1, y1, z1, x2, y1, z2, u1, v1, u2, v2, light, true);
+        }
+
     }
 
     private void renderSprayPartNorthSouth(BufferBuilder builder, MatrixStack.Entry matrixEntry, float x, float y, float z, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, int factor, int light) {
@@ -155,8 +179,8 @@ public class SprayRenderer
         float y2 = maxY - y;
         float z1 = (factor > 0 ? minZ : maxZ) - z + factor;
 
-        float u1 = -x1 / SCALE / RADIUS + OFFSET;
-        float v1 = -x2 / SCALE / RADIUS + OFFSET;
+        float u1 = -factor * x1 / SCALE / RADIUS + OFFSET;
+        float v1 = -factor * x2 / SCALE / RADIUS + OFFSET;
         float u2 = -y1 / SCALE / RADIUS + OFFSET;
         float v2 = -y2 / SCALE / RADIUS + OFFSET;
 
@@ -170,8 +194,8 @@ public class SprayRenderer
         float z1 = minZ - z;
         float z2 = maxZ - z;
 
-        float u1 = -z1 / SCALE / RADIUS + OFFSET;
-        float v1 = -z2 / SCALE / RADIUS + OFFSET;
+        float u1 = factor * z1 / SCALE / RADIUS + OFFSET;
+        float v1 = factor * z2 / SCALE / RADIUS + OFFSET;
         float u2 = -y1 / SCALE / RADIUS + OFFSET;
         float v2 = -y2 / SCALE / RADIUS + OFFSET;
 
@@ -179,7 +203,7 @@ public class SprayRenderer
 
     }
 
-    private void renderSprayPart(BufferBuilder builder, WorldView world, BlockPos pos, MatrixStack.Entry matrixEntry, Direction direction, Vec3f directionUnitVector, float x, float y, float z, int light) {
+    private void renderSprayPart(BufferBuilder builder, WorldView world, BlockPos pos, MatrixStack.Entry matrixEntry, Direction direction, Vec3f directionUnitVector, float x, float y, float z, int light, int facing) {
         BlockPos blockPos = pos.offset(direction.getOpposite());
         BlockState blockState = world.getBlockState(blockPos);
 
@@ -202,7 +226,7 @@ public class SprayRenderer
             float maxZ = (float) (pos.getZ() + boxMaxZ);
 
             if (direction.getAxis() == Direction.Axis.Y) {
-                renderSprayPartVertical(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getY(), light);
+                renderSprayPartVertical(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getY(), light, facing);
             }
             if (direction.getAxis() == Direction.Axis.Z) {
                 renderSprayPartNorthSouth(builder, matrixEntry, x, y, z, minX, minY, minZ, maxX, maxY, maxZ, (int) directionUnitVector.getZ(), light);

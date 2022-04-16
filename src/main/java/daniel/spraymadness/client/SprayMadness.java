@@ -23,6 +23,7 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
@@ -30,6 +31,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -40,6 +42,8 @@ public class SprayMadness implements ClientModInitializer {
     public static final String NAME = "Spray Madness";
 
     public static final Logger LOGGER = LogManager.getLogger(NAME);
+
+    public static SoundEvent ENTITY_PLAYER_SPRAY = new SoundEvent(new Identifier(MOD_ID, "entity.player.spray"));
 
     private static KeyBinding SPRAY_GALLERY_KEYBIND;
     public static KeyBinding SPRAY_WHEEL_KEYBIND;
@@ -59,6 +63,8 @@ public class SprayMadness implements ClientModInitializer {
 
         storage = SprayStorage.getInstance();
         sprayIOManager = new SprayIOManager(storage);
+
+        Registry.register(Registry.SOUND_EVENT, ENTITY_PLAYER_SPRAY.getId(), ENTITY_PLAYER_SPRAY);
 
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SprayReloadListener(storage));
 
@@ -126,7 +132,7 @@ public class SprayMadness implements ClientModInitializer {
                                     ((BlockHitResult) hit).getSide(),
                                     client.player.world.getRegistryKey().getValue()
                             );
-                            client.world.playSound(((BlockHitResult) hit).getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, SoundCategory.PLAYERS, 5, 1, true);
+                            client.world.playSound(((BlockHitResult) hit).getBlockPos(), SprayMadness.ENTITY_PLAYER_SPRAY, SoundCategory.PLAYERS, 5, 1, true);
                             storage.totalWorldSprays.add(spray);
                         }
                     }

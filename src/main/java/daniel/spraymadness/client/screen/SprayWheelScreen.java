@@ -98,7 +98,7 @@ public class SprayWheelScreen extends Screen {
                                 ((BlockHitResult) hit).getSide(),
                                 client.player.world.getRegistryKey().getValue()
                         );
-                        client.world.playSound(((BlockHitResult) hit).getBlockPos(), SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, SoundCategory.PLAYERS, 5, 1, true);
+                        client.world.playSound(((BlockHitResult) hit).getBlockPos(), SprayMadness.ENTITY_PLAYER_SPRAY, SoundCategory.PLAYERS, 5, 1, true);
                         storage.totalWorldSprays.add(spray);
                     }
                 }

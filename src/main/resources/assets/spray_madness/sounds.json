@@ -1,0 +1,23 @@
+{
+  "entity.player.spray": {
+    "replace": false,
+    "subtitle": "entity.player.spray",
+    "sounds": [
+      {
+        "name": "spray_madness:entity/player/spray/spray1",
+        "volume": 0.6,
+        "pitch": 1
+      },
+      {
+        "name": "spray_madness:entity/player/spray/spray1",
+        "volume": 0.6,
+        "pitch": 0.9
+      },
+      {
+        "name": "spray_madness:entity/player/spray/spray1",
+        "volume": 0.6,
+        "pitch": 1.3
+      }
+    ]
+  }
+}

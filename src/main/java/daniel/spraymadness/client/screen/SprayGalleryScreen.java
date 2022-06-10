@@ -32,9 +32,9 @@ public class SprayGalleryScreen extends Screen {
 
     private static final Identifier WIDGETS = new Identifier(SprayMadness.MOD_ID, "textures/gui/widgets.png");
 
-    private static final TranslatableText TIP_LABEL = new TranslatableText("gui.spray_madness.spray_gallery.tip");
-    private static final TranslatableText ADD_SPRAY_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.add_spray.tooltip");
-    private static final TranslatableText DELETE_SPRAY_TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.delete_spray.tooltip");
+    private static final Text TIP_LABEL = Text.translatable("gui.spray_madness.spray_gallery.tip");
+    private static final Text ADD_SPRAY_TOOLTIP = Text.translatable("gui.spray_madness.spray_gallery.add_spray.tooltip");
+    private static final Text DELETE_SPRAY_TOOLTIP = Text.translatable("gui.spray_madness.spray_gallery.delete_spray.tooltip");
     private static final OrderedText TITLE = OrderedText.styledForwardsVisitedString(I18n.translate("gui.spray_madness.spray_gallery.title"), Style.EMPTY.withUnderline(true));
 
     private final SprayStorage sprayStorage;
@@ -77,12 +77,12 @@ public class SprayGalleryScreen extends Screen {
                         15,
                         this.titleY,
                         20, 20,
-                        new LiteralText("X"),
+                        Text.literal("X"),
                         button -> {
                             this.close();
                         },
                         (button, matrices, mouseX, mouseY) -> {
-                            SprayGalleryScreen.this.renderTooltip(matrices, new TranslatableText("gui.spray_madness.spray_gallery.back"), mouseX, mouseY);
+                            SprayGalleryScreen.this.renderTooltip(matrices, Text.translatable("gui.spray_madness.spray_gallery.back"), mouseX, mouseY);
                         }
                 )
         );
@@ -91,7 +91,7 @@ public class SprayGalleryScreen extends Screen {
                 new ButtonWidget(
                         this.width / 2 + 40 - GALLERY_OFFSET, this.height - 75,
                         20, 20,
-                        new LiteralText(">"),
+                        Text.literal(">"),
                         button -> {
                             if (currentSprayTextureIndex + 1 < sprayStorage.loadedTextures.size()) {
                                 currentSprayTextureIndex++;
@@ -106,7 +106,7 @@ public class SprayGalleryScreen extends Screen {
                 new ButtonWidget(
                         this.width / 2 - 60 - GALLERY_OFFSET, this.height - 75,
                         20, 20,
-                        new LiteralText("<"),
+                        Text.literal("<"),
                         button -> {
                             if (currentSprayTextureIndex > 0) {
                                 currentSprayTextureIndex--;
@@ -126,7 +126,7 @@ public class SprayGalleryScreen extends Screen {
                         256, 256,
                         this::showSelectDialog,
                         (button, matrices, mouseX, mouseY) -> SprayGalleryScreen.this.renderTooltip(matrices, ADD_SPRAY_TOOLTIP, mouseX, mouseY),
-                        LiteralText.EMPTY
+                        Text.empty()
                 )
         );
 
@@ -139,12 +139,12 @@ public class SprayGalleryScreen extends Screen {
                         256, 256,
                         this::deleteCurrentSpray,
                         (button, matrices, mouseX, mouseY) -> SprayGalleryScreen.this.renderTooltip(matrices, DELETE_SPRAY_TOOLTIP, mouseX, mouseY),
-                        LiteralText.EMPTY
+                        Text.empty()
                 )
         );
 
         addToWheelButton = this.addDrawableChild(
-                new AddToWheelButtonWidget(this.width / 2 - GALLERY_OFFSET - 30, this.height - 52, 60, 20, new TranslatableText("add_to_wheel"), button -> {
+                new AddToWheelButtonWidget(this.width / 2 - GALLERY_OFFSET - 30, this.height - 52, 60, 20, Text.translatable("add_to_wheel"), button -> {
                     SprayTexture texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex);
 
                     if (sprayStorage.sprayWheelTextures.size() > 7) {
@@ -271,7 +271,7 @@ public class SprayGalleryScreen extends Screen {
         this.textRenderer.drawTrimmed(StringVisitable.styled("Spray Wheel", Style.EMPTY.withBold(true)), (this.width + 166) / 2, (this.height - 40) / 2, 35, Colors.WHITE);
 
         //TODO: Translate this
-        DrawableHelper.drawCenteredText(matrices, this.textRenderer, new TranslatableText(currentSprayCount > 0 ? (currentSprayTextureIndex + 1 + "/" + currentSprayCount) : "No sprays!"), this.width / 2 - GALLERY_OFFSET, this.height - 68, Colors.WHITE);
+        DrawableHelper.drawCenteredText(matrices, this.textRenderer, Text.translatable(currentSprayCount > 0 ? (currentSprayTextureIndex + 1 + "/" + currentSprayCount) : "No sprays!"), this.width / 2 - GALLERY_OFFSET, this.height - 68, Colors.WHITE);
 
         renderSprayWheel(matrices);
 
@@ -289,7 +289,7 @@ public class SprayGalleryScreen extends Screen {
             int y2 = y1 + TEXTURE_WIDTH * 2;
 
             DrawHelper.drawSprayTexture(matrices, texture, x1, y1, TEXTURE_WIDTH * 2, TEXTURE_HEIGHT * 2);
-            DrawableHelper.drawCenteredText(matrices, this.textRenderer, new LiteralText(texture.getTitle()), this.width / 2 - GALLERY_OFFSET, this.height / 2 - 60, Colors.WHITE);
+            DrawableHelper.drawCenteredText(matrices, this.textRenderer, Text.literal(texture.getTitle()), this.width / 2 - GALLERY_OFFSET, this.height / 2 - 60, Colors.WHITE);
 
             if (currentSprayTextureIndex > 0) {
                 texture = sprayStorage.loadedTextures.get(currentSprayTextureIndex - 1);
@@ -306,7 +306,7 @@ public class SprayGalleryScreen extends Screen {
             }
 
             if (mouseX > x1 && mouseY > y1 && mouseX < x2 && mouseY < y2 && !addingSpray) {
-                this.renderTooltip(matrices, new LiteralText(path), mouseX, mouseY);
+                this.renderTooltip(matrices, Text.literal(path), mouseX, mouseY);
             }
 
         }

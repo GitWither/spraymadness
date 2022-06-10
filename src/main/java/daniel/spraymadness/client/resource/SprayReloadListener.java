@@ -5,6 +5,7 @@ import daniel.spraymadness.client.SprayMadness;
 import daniel.spraymadness.client.texture.SprayTexture;
 import daniel.spraymadness.client.util.SprayStorage;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
@@ -15,9 +16,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Objects;
 
 public class SprayReloadListener implements SimpleSynchronousResourceReloadListener {
-    private SprayStorage storage;
+    private final SprayStorage storage;
     public SprayReloadListener(SprayStorage storage) {
         this.storage = storage;
     }
@@ -31,8 +34,8 @@ public class SprayReloadListener implements SimpleSynchronousResourceReloadListe
     public void reload(ResourceManager manager) {
         storage.loadedTextures.removeIf(SprayTexture::isFromPack);
 
-        for (Identifier identifier : manager.findResources("", path -> path.equals("sprays.json"))) {
-            try (InputStream stream = manager.getResource(identifier).getInputStream()) {
+        for (Map.Entry<Identifier, Resource> entry : manager.findResources("", path -> Objects.equals(path.getPath(), "sprays.json")).entrySet()) {
+            try (InputStream stream = entry.getValue().getInputStream()) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
                 JsonObject json = JsonHelper.deserialize(reader);
                 if (json == null) continue;

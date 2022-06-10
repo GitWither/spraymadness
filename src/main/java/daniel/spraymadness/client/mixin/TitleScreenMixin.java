@@ -8,9 +8,7 @@ import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen {
     @Unique
-    private static final TranslatableText TOOLTIP = new TranslatableText("gui.spray_madness.spray_gallery.title");
+    private static final Text TOOLTIP = Text.translatable("gui.spray_madness.spray_gallery.title");
     @Unique
     private static final Identifier SPRAY_CAN = new Identifier(SprayMadness.MOD_ID, "textures/gui/widgets.png");
 
@@ -35,6 +33,6 @@ public abstract class TitleScreenMixin extends Screen {
             this.client.setScreen(new SprayGalleryScreen(SprayStorage.getInstance()));
         }, (button, matrices, mouseX, mouseY) -> {
             TitleScreenMixin.super.renderTooltip(matrices, TOOLTIP, mouseX, mouseY);
-        }, LiteralText.EMPTY));
+        }, Text.empty()));
     }
 }

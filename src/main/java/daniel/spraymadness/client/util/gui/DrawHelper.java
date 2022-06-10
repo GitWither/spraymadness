@@ -62,9 +62,7 @@ public class DrawHelper {
         bufferBuilder.vertex(matrix, x2, y1, 0.0f).color(r, g, b, a).next();
         bufferBuilder.vertex(matrix, x1, y1, 0.0f).color(r, g, b, a).next();
 
-        bufferBuilder.end();
-
-        BufferRenderer.draw(bufferBuilder);
+        BufferRenderer.drawWithShader(bufferBuilder.end());
 
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
@@ -94,9 +92,8 @@ public class DrawHelper {
         bufferBuilder.vertex(posMat, x1, y, 0).texture(1, 0).color(1.0f, 1.0f, 1.0f, opacity).next();
         bufferBuilder.vertex(posMat, x, y, 0).texture(0, 0).color(1.0f, 1.0f, 1.0f, opacity).next();
 
-        bufferBuilder.end();
 
-        BufferRenderer.draw(bufferBuilder);
+        BufferRenderer.drawWithShader(bufferBuilder.end());
 
         RenderSystem.disableBlend();
     }

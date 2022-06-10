@@ -13,9 +13,7 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.ToggleButtonWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 import java.io.File;
@@ -23,7 +21,7 @@ import java.io.File;
 public class AddSprayScreen extends Screen {
     private static final Identifier BACKGROUND = new Identifier("textures/gui/demo_background.png");
 
-    private static final TranslatableText GLOWS_LABEL = new TranslatableText("gui.spray_madness.spray_gallery.add_spray.emissive");
+    private static final Text GLOWS_LABEL = Text.translatable("gui.spray_madness.spray_gallery.add_spray.emissive");
 
     private static final int BACKGROUND_WIDTH = 248;
     private static final int BACKGROUND_HEIGHT = 166;
@@ -51,19 +49,19 @@ public class AddSprayScreen extends Screen {
         this.x = (this.width - BACKGROUND_WIDTH) / 2;
         this.y = (this.height - BACKGROUND_HEIGHT) / 2;
 
-        sprayTitle = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 55, 200, 20, new TranslatableText("addServer.enterName"), new LiteralText("Spray Name")));
+        sprayTitle = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 55, 200, 20, Text.translatable("addServer.enterName"), Text.literal("Spray Name")));
         sprayTitle.setMaxLength(48);
 
-        sprayPath = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 20, 200, 20, new TranslatableText("addServer.enterName"), new LiteralText("File")));
+        sprayPath = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 20, 200, 20, Text.translatable("addServer.enterName"), Text.literal("File")));
         sprayPath.setMaxLength(128);
         sprayPath.setText(path);
 
-        emissive = this.addDrawableChild(new CheckboxWidget(this.width / 2 - 100, this.height / 2 + 15, 20, 20, new TranslatableText(""), false, false));
+        emissive = this.addDrawableChild(new CheckboxWidget(this.width / 2 - 100, this.height / 2 + 15, 20, 20, Text.translatable(""), false, false));
 
-        this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height / 2 + 55, 99, 20, new LiteralText("Cancel"), (button -> {
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height / 2 + 55, 99, 20, Text.translatable("Cancel"), (button -> {
             callback.accept(false);
         })));
-        this.addDrawableChild(new ButtonWidget(this.width / 2 + 1, this.height / 2 + 55, 99, 20, new LiteralText("Add Spray"), (button -> {
+        this.addDrawableChild(new ButtonWidget(this.width / 2 + 1, this.height / 2 + 55, 99, 20, Text.translatable("Add Spray"), (button -> {
             File file = new File(sprayPath.getText());
             if (file.exists()) {
                 this.storage.loadedTextures.add(new SprayTexture(new File(sprayPath.getText()), emissive.isChecked(), sprayTitle.getText()));

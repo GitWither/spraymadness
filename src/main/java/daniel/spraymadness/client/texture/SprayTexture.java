@@ -28,7 +28,7 @@ public class SprayTexture extends AbstractTexture {
         this.emissive = emissive;
         this.fromPack = false;
         try {
-            if (!source.exists()) return;
+            if (!source.exists()) throw new IOException();
 
             InputStream inputStream = new FileInputStream(source);
             NativeImage texture = NativeImage.read(inputStream);
@@ -56,6 +56,7 @@ public class SprayTexture extends AbstractTexture {
         } catch (IOException e) {
             SprayMadness.LOGGER.error("Couldn't load spray texture " + source.getPath());
             this.identifier = MissingSprite.getMissingSpriteId();
+            this.path = "Error";
         }
     }
 

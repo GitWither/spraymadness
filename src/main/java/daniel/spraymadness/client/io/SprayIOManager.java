@@ -16,7 +16,6 @@ import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.nbt.*;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.Direction;

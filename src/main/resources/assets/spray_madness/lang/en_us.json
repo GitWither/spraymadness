@@ -5,6 +5,8 @@
   "gui.spray_madness.spray_gallery.tip": "Tip: You can add sprays by drag-and-dropping images here!",
   "gui.spray_madness.spray_gallery.add_spray.tooltip": "Add Spray",
   "gui.spray_madness.spray_gallery.add_spray.emissive": "Emissive",
+  "gui.spray_madness.spray_gallery.add_spray.spray_name": "Spray Name",
+  "gui.spray_madness.spray_gallery.add_spray.file": "File Path",
   "gui.spray_madness.spray_gallery.delete_spray.tooltip": "Delete Spray",
   "gui.spray_madness.spray_gallery.spray_wheel.full": "Wheel Full",
   "gui.spray_madness.spray_gallery.spray_wheel.empty": "No sprays",

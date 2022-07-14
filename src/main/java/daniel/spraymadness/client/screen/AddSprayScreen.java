@@ -49,10 +49,10 @@ public class AddSprayScreen extends Screen {
         this.x = (this.width - BACKGROUND_WIDTH) / 2;
         this.y = (this.height - BACKGROUND_HEIGHT) / 2;
 
-        sprayTitle = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 55, 200, 20, Text.translatable("addServer.enterName"), Text.literal("Spray Name")));
+        sprayTitle = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 55, 200, 20, Text.translatable("addServer.enterName"), Text.translatable("gui.spray_madness.spray_gallery.add_spray.spray_name")));
         sprayTitle.setMaxLength(48);
 
-        sprayPath = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 20, 200, 20, Text.translatable("addServer.enterName"), Text.literal("File")));
+        sprayPath = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 20, 200, 20, Text.translatable("addServer.enterName"), Text.translatable("gui.spray_madness.spray_gallery.add_spray.file")));
         sprayPath.setMaxLength(128);
         sprayPath.setText(path);
 

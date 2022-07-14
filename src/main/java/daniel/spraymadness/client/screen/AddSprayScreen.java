@@ -15,6 +15,7 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 
 import java.io.File;
 
@@ -28,6 +29,8 @@ public class AddSprayScreen extends Screen {
 
     private int x;
     private int y;
+
+    private boolean shouldRenderFileWarning = false;
 
     private final BooleanConsumer callback;
     private final SprayStorage storage;
@@ -55,6 +58,10 @@ public class AddSprayScreen extends Screen {
         sprayPath = this.addDrawableChild(new LabelledTextFieldWidget(this.textRenderer, this.width / 2 - 100, this.height / 2 - 20, 200, 20, Text.translatable("addServer.enterName"), Text.translatable("gui.spray_madness.spray_gallery.add_spray.file")));
         sprayPath.setMaxLength(128);
         sprayPath.setText(path);
+        sprayPath.setChangedListener(text -> {
+            File file = new File(text);
+            shouldRenderFileWarning = (!file.exists() || file.isDirectory());
+        });
 
         emissive = this.addDrawableChild(new CheckboxWidget(this.width / 2 - 100, this.height / 2 + 15, 20, 20, Text.translatable(""), false, false));
 
@@ -62,6 +69,8 @@ public class AddSprayScreen extends Screen {
             callback.accept(false);
         })));
         this.addDrawableChild(new ButtonWidget(this.width / 2 + 1, this.height / 2 + 55, 99, 20, Text.translatable("Add Spray"), (button -> {
+            if (shouldRenderFileWarning) return;
+            
             File file = new File(sprayPath.getText());
             if (file.exists()) {
                 this.storage.loadedTextures.add(new SprayTexture(new File(sprayPath.getText()), emissive.isChecked(), sprayTitle.getText()));
@@ -90,5 +99,8 @@ public class AddSprayScreen extends Screen {
 
         this.textRenderer.draw(matrices, GLOWS_LABEL, this.width / 2f - 75, this.height / 2f + 21, 0);
 
+        if (shouldRenderFileWarning) {
+            this.textRenderer.draw(matrices, Text.translatable("gui.spray_madness.spray_gallery.add_spray.no_file"), this.width / 2f - 100, this.height / 2f + 3, 0xFF0000);
+        }
     }
 }

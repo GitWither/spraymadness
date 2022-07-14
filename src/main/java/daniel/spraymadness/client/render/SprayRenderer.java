@@ -30,9 +30,8 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-import org.lwjgl.opengl.GL;
 
-import static org.lwjgl.opengl.GL11C.*;
+import static com.mojang.blaze3d.platform.GlConst.GL_LEQUAL;
 
 public class SprayRenderer
 {

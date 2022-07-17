@@ -103,7 +103,7 @@ public class SprayRenderer
             BlockPos blockPos2 = new BlockPos(x2, y2, z2);
 
             for (BlockPos blockPos : BlockPos.iterate(blockPos1, blockPos2)) {
-                if (!Block.shouldDrawSide(ctx.world().getBlockState(blockPos), ctx.world(), blockPos, spray.getFace(), blockPos)) continue;
+                if (!Block.shouldDrawSide(ctx.world().getBlockState(blockPos), ctx.world(), blockPos, spray.getFace(), blockPos) && !ctx.world().getBlockState(blockPos).isOf(Blocks.WATER)) continue;
 
                 int light = spray.isEmissive() ? LightmapTextureManager.MAX_LIGHT_COORDINATE : WorldRenderer.getLightmapCoordinates(ctx.world(), blockPos);
 

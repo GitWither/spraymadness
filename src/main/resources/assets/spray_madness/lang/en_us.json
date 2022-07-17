@@ -17,5 +17,18 @@
   "gui.spray_madness.spray_gallery.spray_wheel.empty.tooltip": "There are currently no sprays! Add one to add it to the spray wheel!",
   "gui.spray_madness.spray_gallery.spray_wheel.add.tooltip": "Add this spray to the spray wheel",
   "gui.spray_madness.spray_gallery.spray_wheel.remove.tooltip": "Remove this spray from the spray wheel",
-  "gui.spray_madness.spray_gallery.back": "Back"
+  "gui.spray_madness.spray_gallery.back": "Back",
+
+  "key.spray_madness.delete_spray": "Delete Sprays",
+  "key.spray_madness.spray_gallery": "Open Spray Gallery",
+  "key.spray_madness.spray_wheel": "Open Spray Wheel",
+  "key.spray_madness.spray_wheel_0": "Spray Slot 1",
+  "key.spray_madness.spray_wheel_1": "Spray Slot 2",
+  "key.spray_madness.spray_wheel_2": "Spray Slot 3",
+  "key.spray_madness.spray_wheel_3": "Spray Slot 4",
+  "key.spray_madness.spray_wheel_4": "Spray Slot 5",
+  "key.spray_madness.spray_wheel_5": "Spray Slot 6",
+  "key.spray_madness.spray_wheel_6": "Spray Slot 7",
+  "key.spray_madness.spray_wheel_7": "Spray Slot 8"
+
 }

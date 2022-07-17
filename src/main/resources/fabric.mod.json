@@ -3,7 +3,7 @@
   "id": "spraymadness",
   "version": "${version}",
   "name": "Spray Madness",
-  "description": "Adds the ability to spray customizable graffiti in your world. Spray whatever, wherever you want.",
+  "description": "Spray whatever, wherever you want with Spray Madness! This mod allows you to import custom images as graffiti and allows you to spray all surfaces in the game with them! Mark important locations, annotate Redstone contraptions, or decorate your base with fancy art! The best part? Everything is saved client-side, meaning if you spray something on a server or on a Realm, it will be saved!\nTo use, access the Spray Gallery from the main menu and press Y in-game.",
   "authors": [
     "Daniel K."
   ],

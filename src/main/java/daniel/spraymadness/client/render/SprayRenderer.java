@@ -113,11 +113,12 @@ public class SprayRenderer
 
 
             ctx.matrixStack().pop();
+            this.bufferBuilder.end();
 
             RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
 
-            BufferRenderer.drawWithShader(this.bufferBuilder.end());
+            BufferRenderer.draw(this.bufferBuilder);
         }
         this.client.gameRenderer.getLightmapTextureManager().disable();
 

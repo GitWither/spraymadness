@@ -34,8 +34,8 @@ public class SprayReloadListener implements SimpleSynchronousResourceReloadListe
     public void reload(ResourceManager manager) {
         storage.loadedTextures.removeIf(SprayTexture::isFromPack);
 
-        for (Map.Entry<Identifier, Resource> entry : manager.findResources("", path -> Objects.equals(path.getPath(), "sprays.json")).entrySet()) {
-            try (InputStream stream = entry.getValue().getInputStream()) {
+        for (Identifier identifier : manager.findResources("", path -> path.equals("sprays.json"))) {
+            try (InputStream stream = manager.getResource(identifier).getInputStream()) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
                 JsonObject json = JsonHelper.deserialize(reader);
                 if (json == null) continue;

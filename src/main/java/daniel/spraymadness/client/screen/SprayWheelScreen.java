@@ -24,7 +24,7 @@ import net.minecraft.util.math.Vec3f;
 public class SprayWheelScreen extends Screen {
     public static final Identifier TEXTURE = new Identifier(SprayMadness.MOD_ID, "textures/gui/spray_wheel.png");
 
-    private static final Text TITLE = Text.translatable("gui.spray_madness.spray_wheel.title");
+    private static final Text TITLE = new TranslatableText("gui.spray_madness.spray_wheel.title");
 
 
     private final SprayStorage storage;
